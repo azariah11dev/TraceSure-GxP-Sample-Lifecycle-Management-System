@@ -1,0 +1,15 @@
+[project]
+name = "tracesure"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.129.0",
+    "jose>=1.0.0",
+    "passlib>=1.7.4",
+    "pydantic>=2.12.5",
+    "sqlalchemy>=2.0.46",
+    "typing>=3.10.0.0",
+    "uvicorn>=0.40.0",
+]

@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: TraceSureDB_Postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: deep_value
+      POSTGRES_DB: TraceSureDB
+    ports:
+      - "5432:5432"
+    volumes:
+      - project2_pgdata:/var/lib/postgresql/data
+  
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: TraceSure_App
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://postgres:deep_value@postgres:5432/TraceSureDB
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: uvicorn src.backend.app:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+
+volumes:
+  project2_pgdata:

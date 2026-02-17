@@ -12,7 +12,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - project2_pgdata:/var/lib/postgresql/data
+      - TraceSure_pgdata:/var/lib/postgresql/data
   
   app:
     build:
@@ -31,4 +31,4 @@ services:
       - "8000:8000"
 
 volumes:
-  project2_pgdata:
+  TraceSure_pgdata:

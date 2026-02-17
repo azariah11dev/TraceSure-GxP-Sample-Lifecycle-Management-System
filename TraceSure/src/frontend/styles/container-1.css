@@ -11,3 +11,7 @@
     margin-bottom: 10px;
     color: #0047b3;
 }
+
+.container-1-logo:hover {
+    cursor: pointer;
+}

@@ -1,6 +1,6 @@
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-from backend.models.trackerdb import engine
+from models.trackerdb import engine
 
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 

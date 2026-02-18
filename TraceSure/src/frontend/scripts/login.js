@@ -18,10 +18,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const data = await response.json();
 
-        if (data.access_token) {
+        if (response.ok) {
+            // Save token
         localStorage.setItem("token", data.access_token);
+        // Redirect
         window.location.href = "dashboard.html";
+        } else {
+            // Show backend error
+            alert(data.detail || "Login failed");
         }
-
     });
 });

@@ -4,9 +4,9 @@ from jose import jwt, JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from backend.models.trackerdb import Users
-from backend.dependencies.dependency import get_async_session
-from backend.auth.jwt_handler import SECRET_KEY, ALGORITHM
+from models.trackerdb import Users
+from dependencies.dependency import get_async_session
+from auth.jwt_handler import SECRET_KEY, ALGORITHM
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 

@@ -2,9 +2,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 from contextlib import asynccontextmanager
-from backend.endpoints.post_endpoints.user_auth import user_auth_router
-from backend.models.trackerdb import create_db_and_tables
-from backend.dependencies.dependency import get_async_session
+from endpoints.post_endpoints.user_auth import user_auth_router
+from models.trackerdb import create_db_and_tables
+from dependencies.dependency import get_async_session
 
 
 @asynccontextmanager

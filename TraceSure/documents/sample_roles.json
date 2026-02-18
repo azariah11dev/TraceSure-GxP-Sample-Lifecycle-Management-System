@@ -1,0 +1,32 @@
+[
+  {
+    "role": "Admin",
+    "name": "Elena Vasquez",
+    "email": "elena.vasquez.admin@example.com",
+    "password": "Ax7!mQ92#Lp"
+  },
+  {
+    "role": "Technician",
+    "name": "Marcus Liu",
+    "email": "marcus.liu.tech@example.com",
+    "password": "Tq4$zN81@rw"
+  },
+  {
+    "role": "Manager",
+    "name": "Priya Raman",
+    "email": "priya.raman.manager@example.com",
+    "password": "Mn9!vK33#ts"
+  },
+  {
+    "role": "QA",
+    "name": "Daniel Okafor",
+    "email": "daniel.okafor.qa@example.com",
+    "password": "Qa5@Lp72!bx"
+  },
+  {
+    "role": "Supervisor",
+    "name": "Sofia Martinez",
+    "email": "sofia.martinez.supervisor@example.com",
+    "password": "Su8#Xt41!kp"
+  }
+]

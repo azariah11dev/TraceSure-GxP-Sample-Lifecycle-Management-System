@@ -45,6 +45,9 @@ docker compose logs postgres
 # Follow logs in real time
 docker compose logs -f postgres
 
+# Stop containers
+docker compose stop
+
 
 ========================================
 CONTAINER MANAGEMENT

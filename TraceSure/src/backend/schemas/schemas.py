@@ -14,5 +14,6 @@ class UserResponse(BaseModel):
     username: str
     email: str
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }

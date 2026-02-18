@@ -1,0 +1,67 @@
+========================================
+POSTGRES TERMINAL CHEAT SHEET
+========================================
+
+ENTER POSTGRES (Docker container)
+----------------------------------------
+docker exec -it TraceSureDB_Postgres psql -U postgres -d TraceSureDB
+
+EXIT POSTGRES
+----------------------------------------
+\q
+
+LIST ALL TABLES
+----------------------------------------
+\dt
+
+SHOW TABLE STRUCTURE
+----------------------------------------
+\d table_name
+Example:
+\d users
+
+QUERY ALL ROWS
+----------------------------------------
+SELECT * FROM table_name;
+
+FILTER ROWS
+----------------------------------------
+SELECT * FROM users WHERE username = 'Azariah';
+
+COUNT ROWS
+----------------------------------------
+SELECT COUNT(*) FROM table_name;
+
+INSERT A ROW
+----------------------------------------
+INSERT INTO users (username, email, password_hash)
+VALUES ('test', 'test@example.com', 'abc123');
+
+UPDATE A ROW
+----------------------------------------
+UPDATE users
+SET email = 'new@example.com'
+WHERE username = 'test';
+
+DELETE A ROW
+----------------------------------------
+DELETE FROM users WHERE username = 'test';
+
+LIST ALL DATABASES
+----------------------------------------
+\l
+
+SWITCH DATABASE
+----------------------------------------
+\c database_name
+
+HELP (list all psql commands)
+----------------------------------------
+\?
+
+NOTES
+----------------------------------------
+• SQL commands must end with a semicolon (;)
+• Arrow keys navigate command history
+• Use uppercase for SQL keywords (optional but clearer)
+• Docker container must be running to access Postgres

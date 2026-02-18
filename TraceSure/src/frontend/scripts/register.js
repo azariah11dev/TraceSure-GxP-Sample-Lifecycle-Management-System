@@ -20,8 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await response.json();
         console.log(data);
 
-        if (data.status === "ok") {
+        if (response.ok) {
+            alert("Account created successfully!")
             window.location.href = "../navigation/login.html";
+        } else {
+            alert(data.detail || "Registration failed");
         }
     });
 });

@@ -2,8 +2,12 @@ from sqlalchemy import Column, String, DateTime, Boolean,Integer
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql import func
+import os
 
-DATABASE_URL = "postgresql+asyncpg://postgres:deep_value@postgres:5432/TraceSureDB"
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql+asyncpg://postgres:deep_value@localhost:5432/TraceSureDB"
+)
 
 class Base(DeclarativeBase):
     pass

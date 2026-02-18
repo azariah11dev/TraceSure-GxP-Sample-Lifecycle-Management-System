@@ -2,14 +2,14 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.context import CryptContext
-from backend.dependencies.dependency import get_async_session
-from backend.schemas.schemas import LoginRequest, RegisterRequest, UserResponse
-from backend.models.trackerdb import Users
-from backend.auth.jwt_handler import create_access_token
-from backend.auth.dependencies import get_current_user
+from dependencies.dependency import get_async_session
+from schemas.schemas import LoginRequest, RegisterRequest, UserResponse
+from models.trackerdb import Users
+from auth.jwt_handler import create_access_token
+from auth.dependencies import get_current_user
 
 user_auth_router = APIRouter(prefix="/auth", tags=["auth"])
-password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+password_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 @user_auth_router.post("/login")
 async def login(data: LoginRequest, session: AsyncSession = Depends(get_async_session)):

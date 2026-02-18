@@ -13,6 +13,11 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 # Add uv to PATH
 ENV PATH="/root/.local/bin:${PATH}"
 
+# Set HOME inside the container
+ENV HOME=/app
+# Then create the directory
+RUN mkdir -p /app/.cache/uv
+
 # Set work directory
 WORKDIR /app
 

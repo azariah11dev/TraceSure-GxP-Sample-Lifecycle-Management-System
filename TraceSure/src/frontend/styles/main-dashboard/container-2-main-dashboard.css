@@ -1,0 +1,35 @@
+.container-2 {
+    display: flex;
+    flex-direction: row;
+}
+
+.container-2-sidebar {
+    width: 220px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: #000033;
+}
+ul.container-2-sidebar-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.container-2-sidebar-links .menu-links {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    padding: 12px 20px;
+    margin-bottom: 4px;
+    color: #ffffff;
+}
+.container-2-sidebar-links .menu-links a {
+    text-decoration: none;
+    display: block;
+    font-size: 15px;
+    color: #ffffff;
+}
+.container-2-sidebar-links .menu-links:hover {
+    background: #00004d;
+    cursor: pointer;
+}

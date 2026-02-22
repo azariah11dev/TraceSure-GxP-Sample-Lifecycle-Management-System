@@ -21,4 +21,9 @@ document.addEventListener("DOMContentLoaded", () => {
     login_link.addEventListener("click", () => {
         window.location.href = "./navigation/login.html";
     });
+
+    const home_dashboard_link = document.getElementById("home-logo-dashboard");
+    home_dashboard_link.addEventListener("click", () => {
+        window.location.href = "./navigation/dashboard-main";
+    });
 });

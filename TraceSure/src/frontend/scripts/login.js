@@ -21,6 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (response.ok) {
             // Save token
         localStorage.setItem("token", data.access_token);
+        localStorage.setItem("username", data.username);
+        localStorage.setItem("role", data.role)
         // Redirect
         window.location.href = "../navigation/dashboard-main.html";
         } else {

@@ -23,7 +23,10 @@ async def login(data: LoginRequest, session: AsyncSession = Depends(get_async_se
     
     # Create access token
     access_token = create_access_token(data={"sub": user.username})
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token,
+            "token_type": "bearer",
+            "username": data.username,
+            "role": user.role}
     
 @user_auth_router.post("/register")
 async def register(data: RegisterRequest, session: AsyncSession = Depends(get_async_session)):

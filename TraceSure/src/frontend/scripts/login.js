@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Save token
         localStorage.setItem("token", data.access_token);
         // Redirect
-        window.location.href = "dashboard.html";
+        window.location.href = "../navigation/dashboard-main.html";
         } else {
             // Show backend error
             alert(data.detail || "Login failed");

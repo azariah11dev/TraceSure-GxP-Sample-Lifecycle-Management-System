@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 from contextlib import asynccontextmanager
 from endpoints.post_endpoints.user_auth import user_auth_router
+from endpoints.post_endpoints.test_management import sample_test_router
 from models.trackerdb import create_db_and_tables
 from dependencies.dependency import get_async_session
 
@@ -37,3 +38,4 @@ def health_check():
     return {"status": "ok"}
 
 app.include_router(user_auth_router)
+app.include_router(sample_test_router)

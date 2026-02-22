@@ -8,6 +8,7 @@ __pycache__/
 .venv
 
 # uv cache
+.cache/
 .uv/
 
 # IDE settings

@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.context import CryptContext
 from dependencies.dependency import get_async_session
-from schemas.schemas import LoginRequest, RegisterRequest, UserResponse
+from schemas.user_auth_schema import LoginRequest, RegisterRequest, UserResponse
 from models.trackerdb import Users
 from auth.jwt_handler import create_access_token
 from auth.dependencies import get_current_user

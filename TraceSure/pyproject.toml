@@ -14,4 +14,6 @@ dependencies = [
     "uvicorn>=0.40.0",
     "bcrypt>=5.0.0",
     "argon2-cffi>=25.1.0",
+    "pandas>=3.0.1",
+    "datetime>=6.0",
 ]

@@ -25,6 +25,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const selected_tests = [...document.querySelectorAll(".test-selection input:checked")]
                 .map(cb => cb.value);
 
+            if (!sample_name.trim()) {
+                alert("Sample name cannot be blank")
+                return;
+            }
+
             console.log("Sample Name:", sample_name);
             console.log("Selected Tests:", selected_tests);
 

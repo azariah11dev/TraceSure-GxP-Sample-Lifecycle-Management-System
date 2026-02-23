@@ -35,4 +35,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("release").addEventListener("click", () => {
         loadComponent("../navigation/components/samples-released-component.html");
     });
+
+    document.getElementById("historical-samples").addEventListener("click", () => {
+        loadComponent("../navigation/components/sample-history-component.html");
+    });
 });

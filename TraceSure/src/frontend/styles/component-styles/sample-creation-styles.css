@@ -1,0 +1,86 @@
+.sample-creation-component {
+    display: flex;
+    flex-direction: column;
+}
+
+.sample-creation-component-top-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    height: 40px;
+    padding: 0px 30px 0px;
+    background-color: #e6e6ff;
+}
+
+#sample-creation-component-create-samples {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 3px;
+    padding: 5px;
+    border-radius: 8px;
+    background-color: #000033;
+    color: #ffffff;
+}
+#sample-creation-component-create-samples:hover {
+    cursor: pointer;
+    transform: scale(1.05);
+}
+
+.container-2-sample-creation-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sample-creation-form-hidden {
+    display: none;
+}
+#sample-creation-form {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 30%;
+    background-color: #00004d;
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 25px;
+}
+
+.container-2-sample-name-input {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+#sample-name-input {
+    width: 300px;
+}
+
+.test-selection {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    padding: 0px 50px 0px;
+}
+
+.sample-creation-complete-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+#sample-creation-complete {
+    padding: 5px;
+    border-radius: 8px;
+    background-color: #000033;
+    color: #ffffff;
+}
+#sample-creation-complete:hover {
+    cursor: pointer;
+    transform: scale(1.05);
+}

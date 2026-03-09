@@ -15,7 +15,8 @@
     gap: 10px;
 }
 
-#sample-creation-component-create-samples, #sample-creation-component-add-test {
+#sample-creation-component-create-samples, #sample-creation-component-add-test,
+#add-test-search{
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -25,22 +26,8 @@
     background-color: #000033;
     color: #ffffff;
 }
-#sample-creation-component-create-samples:hover, #sample-creation-component-add-test:hover {
-    cursor: pointer;
-    transform: scale(1.05);
-}
-
-#sample-creation-component-add-tests {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 3px;
-    padding: 5px;
-    border-radius: 8px;
-    background-color: #000033;
-    color: #ffffff;
-}
-#sample-creation-component-add-tests:hover {
+#sample-creation-component-create-samples:hover, #sample-creation-component-add-test:hover,
+#add-test-search:hover {
     cursor: pointer;
     transform: scale(1.05);
 }
@@ -99,6 +86,63 @@
     color: #ffffff;
 }
 #sample-creation-complete:hover {
+    cursor: pointer;
+    transform: scale(1.05);
+}
+
+.container-2-add-test-form-hidden {
+    display: none;
+}
+.container-2-add-test-form-visible {
+    display:flex;
+    flex-direction: row;
+}
+#container-2-add-test-form {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 0px 30px;
+    width: 30%;
+    gap: 12px;
+    background-color: #00004d;
+    border-radius: 25px;
+}
+
+.add-test-form-top-bar {
+    display:flex;
+    flex-direction: row;
+}
+
+#add-test-form-display {
+    color: #ffffff;
+    gap: 5px;
+}
+
+.add-test-form-display-additional-tests-hidden {
+    display: none;
+}
+.add-test-form-display-additional-tests-visible {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    border-radius: 25px;
+    color: #ffffff;
+}
+.test-addition {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+#add-test-form-submission {
+    padding: 5px;
+    border-radius: 8px;
+    background-color: #000033;
+    color: #ffffff;
+    width: 100px;
+    margin-left: 20px;
+}
+#add-test-form-submission:hover {
     cursor: pointer;
     transform: scale(1.05);
 }

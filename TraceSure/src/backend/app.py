@@ -1,12 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.ext.asyncio import AsyncSession
 from contextlib import asynccontextmanager
 from endpoints.post_endpoints.user_auth import user_auth_router
 from endpoints.post_endpoints.test_management import sample_test_router
+from endpoints.get_endpoints.add_tests import add_test_router
+from endpoints.put_endpoints.update_sample_test import update_sample_test_router
 from models.trackerdb import create_db_and_tables
-from dependencies.dependency import get_async_session
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -40,3 +39,5 @@ def health_check():
 
 app.include_router(user_auth_router)
 app.include_router(sample_test_router)
+app.include_router(add_test_router)
+app.include_router(update_sample_test_router)

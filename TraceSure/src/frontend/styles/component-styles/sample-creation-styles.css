@@ -12,9 +12,10 @@
     height: 40px;
     padding: 0px 30px 0px;
     background-color: #e6e6ff;
+    gap: 10px;
 }
 
-#sample-creation-component-create-samples {
+#sample-creation-component-create-samples, #sample-creation-component-add-test {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -24,7 +25,22 @@
     background-color: #000033;
     color: #ffffff;
 }
-#sample-creation-component-create-samples:hover {
+#sample-creation-component-create-samples:hover, #sample-creation-component-add-test:hover {
+    cursor: pointer;
+    transform: scale(1.05);
+}
+
+#sample-creation-component-add-tests {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 3px;
+    padding: 5px;
+    border-radius: 8px;
+    background-color: #000033;
+    color: #ffffff;
+}
+#sample-creation-component-add-tests:hover {
     cursor: pointer;
     transform: scale(1.05);
 }
@@ -38,10 +54,12 @@
 .sample-creation-form-hidden {
     display: none;
 }
-#sample-creation-form {
-    margin-top: 20px;
+.sample-creation-form-visible {
     display: flex;
     flex-direction: column;
+}
+#sample-creation-form {
+    margin-top: 20px;
     gap: 12px;
     width: 30%;
     background-color: #00004d;

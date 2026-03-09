@@ -27,9 +27,10 @@ class Users(Base):
 
 class Samples(Base):
     __tablename__ = "samples"
-
-    sample_name = Column(String,primary_key=True, index=True, nullable=False)
-    created_by = Column(String)
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    sample_name = Column(String, index=True, nullable=False)
+    created_by = Column(String, index=True, nullable=False)
     created_date = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     performed_by = Column(String, index=True)
     test_name = Column(String, index=True)

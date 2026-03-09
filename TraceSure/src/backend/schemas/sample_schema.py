@@ -3,6 +3,7 @@ from pydantic import BaseModel
 class SampleCreation(BaseModel):
     sample_name: str
     created_by: str
+    tests: list[str]
 
 class SampleResults(BaseModel):
     sample_name: str

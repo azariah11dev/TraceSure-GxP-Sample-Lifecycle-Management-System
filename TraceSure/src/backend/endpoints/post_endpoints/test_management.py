@@ -14,22 +14,23 @@ sample_test_router = APIRouter(prefix="/sample", tags=["sample"])
 async def create_sample(data: SampleCreation, session: AsyncSession = Depends(get_async_session)):
 
     log_results(data)
-
+    """
     test_collection = ["identification", "assay", "dissolution", "content_uniformity", "individual_impurity", "total_impurities", "microbial_limit_TAMC", "microbial_limit_TYMC", 'water_content']
-
+    """
     result_row = []
 
-    for test in test_collection:
+    for test in data.tests:
         row = Samples(
             sample_name=data.sample_name,
             created_by=data.created_by,
             performed_by=None,
-            test_name=test_collection[test],
+            test_name=test,
             result=None,
             spec_range_upper_limit=None,
             spec_range_lower_limit=None,
             unit=None,
             status=None,
+            test_completed_date=None,
             reviewed_by=None,
             reviewed_status=None,
             manager_name=None,
@@ -38,7 +39,7 @@ async def create_sample(data: SampleCreation, session: AsyncSession = Depends(ge
             QA_name=None,
             QA_approval=None
         )
-        session.add(result_row)
+        session.add(row)
         result_row.append(row)
     
     await session.commit()
@@ -50,9 +51,59 @@ async def create_sample(data: SampleCreation, session: AsyncSession = Depends(ge
             "created by": data.created_by,
             "created date": formatted_date}
 
+@sample_test_router.post("/add_tests")
+async def add_tests(data: SampleCreation, session: AsyncSession = Depends(get_async_session)):
+    # 1. Fetch existing tests for this sample
+    existing_tests_query = select(Samples.test_name).where(
+        Samples.sample_name == data.sample_name
+    )
+    existing_tests = (await session.execute(existing_tests_query)).scalars().all()
+
+    # 2. Determine which tests are new
+    new_tests = [t for t in data.tests if t not in existing_tests]
+
+    if not new_tests:
+        raise HTTPException(
+            status_code=400,
+            detail=f"All requested tests already exist for sample {data.sample_name}. Existing tests: {existing_tests}"
+        )
+
+    # 3. Insert only the new tests
+    inserted_rows = []
+    for test in new_tests:
+        row = Samples(
+            sample_name=data.sample_name,
+            created_by=data.created_by,
+            performed_by=None,
+            test_name=test,
+            result=None,
+            spec_range_upper_limit=None,
+            spec_range_lower_limit=None,
+            unit=None,
+            status=None,
+            test_completed_date=None,
+            reviewed_by=None,
+            reviewed_status=None,
+            manager_name=None,
+            manager_approval=None,
+            released_date=None,
+            QA_name=None,
+            QA_approval=None
+        )
+        session.add(row)
+        inserted_rows.append(row)
+
+    await session.commit()
+
+    return {
+        "sample_name": data.sample_name,
+        "added_tests": new_tests,
+        "skipped_existing_tests": [t for t in data.tests if t in existing_tests],
+        "message": f"Successfully added {len(new_tests)} new tests to sample {data.sample_name}."
+    }
+
 @sample_test_router.post("/log_results")
-async def log_results(data: SampleResults,
-                      session: AsyncSession = Depends(get_async_session)):
+async def log_results(data: SampleResults, session: AsyncSession = Depends(get_async_session)):
     # 1. Find the specific test row for this sample
     query = select(Samples).where(
         Samples.sample_name == data.sample_name,

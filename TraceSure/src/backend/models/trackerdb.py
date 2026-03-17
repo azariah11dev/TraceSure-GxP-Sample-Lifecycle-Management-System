@@ -48,6 +48,17 @@ class Samples(Base):
     QA_name = Column(String)
     QA_approval = Column(Boolean)
 
+class CorrectionLog(Base):
+    __tablename__ = "correction_logs"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    sample_name = Column(String, index=True, nullable=False)
+    test_name = Column(String, index=True, nullable=False)
+    result = Column(Float, index=True)
+    explanation = Column(String)
+    modified_by = Column(String, index=True)
+    modified_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
 engine = create_async_engine(DATABASE_URL, echo=True)
 
 #create tables

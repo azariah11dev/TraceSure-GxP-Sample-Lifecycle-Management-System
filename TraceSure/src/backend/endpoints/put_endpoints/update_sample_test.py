@@ -2,67 +2,54 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func
+from datetime import datetime, timezone
 from dependencies.dependency import get_async_session
 from models.trackerdb import Samples
-from schemas.sample_schema import SampleCreation
+from schemas.sample_schema import SampleResults
+from services.samples import SampleAnalyzer
+from services.correction_tracker import CorrectionTracker
 
-update_sample_test_router = APIRouter(prefix="/update_sample_test", tags=["update_sample_test"])
+update_sample_test_router = APIRouter(prefix="/update_test_result", tags=["update_sample_test"])
 
-@update_sample_test_router.put("/add_tests")
-async def add_tests(data: SampleCreation, session: AsyncSession = Depends(get_async_session)):
-
-    # 1. Fetch existing tests for this sample
-    existing_tests_query = select(Samples.test_name).where(
-        Samples.sample_name == data.sample_name
+@update_sample_test_router.put("/log_results")
+async def log_results(data: SampleResults, session: AsyncSession = Depends(get_async_session)):
+    # 1. Find the specific test row for this sample
+    query = select(Samples).where(
+        Samples.sample_name == data.sample_name,
+        Samples.test_name == data.test_name
     )
-    existing_tests = (await session.execute(existing_tests_query)).scalars().all()
+    row = (await session.execute(query)).scalars().first()
+    date = datetime.now(timezone.utc)
 
-    # Normalize for safety (optional but recommended)
-    requested_tests = [t.strip().lower() for t in data.tests]
-    existing_tests_normalized = [t.strip().lower() for t in existing_tests]
+    if not row:
+        raise HTTPException(status_code=404, detail="Test row not found for this sample")
+    
+    if row.test_completed_date is not None:
+        if not data.explanation:
+            raise HTTPException(400, detail="Modification requires justification.")
+        else:
+            correction_tracker = CorrectionTracker(data=data, session=session)
+            await correction_tracker.log_correction()
 
-    # 2. Check if ANY requested test already exists
-    duplicates = [t for t in requested_tests if t in existing_tests_normalized]
+    # 2. Run analyzer for this test
+    analyzer = SampleAnalyzer(session=session, test_name=data.test_name)
+    status = await analyzer.evaluate(data.result_value)
 
-    if duplicates:
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                f"Cannot add tests. The following tests already exist for sample "
-                f"{data.sample_name}: {duplicates}. "
-                "No tests were added."
-            )
-        )
-
-    # 3. If we reach here, ALL tests are new → safe to insert
-    inserted_rows = []
-    for test in requested_tests:
-        row = Samples(
-            sample_name=data.sample_name,
-            created_by=data.created_by,
-            performed_by=None,
-            test_name=test,
-            result=None,
-            spec_range_upper_limit=None,
-            spec_range_lower_limit=None,
-            unit=None,
-            status=None,
-            test_completed_date=None,
-            reviewed_by=None,
-            reviewed_status=None,
-            manager_name=None,
-            manager_approval=None,
-            released_date=None,
-            QA_name=None,
-            QA_approval=None
-        )
-        session.add(row)
-        inserted_rows.append(row)
+    # 3. Update the row
+    row.result = data.result_value
+    row.status = status
+    row.performed_by = data.performed_by
+    row.test_completed_date= date
 
     await session.commit()
+    await session.refresh(row)
 
     return {
-        "sample_name": data.sample_name,
-        "added_tests": requested_tests,
-        "message": f"Successfully added {len(requested_tests)} new tests to sample {data.sample_name}."
+        "test_name": row.test_name,
+        "result": row.result,
+        "spec_upper": row.spec_range_upper_limit,
+        "spec_lower": row.spec_range_lower_limit,
+        "unit": row.unit,
+        "status": row.status,
+        "open_deviation": (True if (row.status == "out_of_specification") else False)
     }

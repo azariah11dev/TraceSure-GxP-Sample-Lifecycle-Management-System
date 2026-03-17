@@ -10,3 +10,11 @@ class SampleResults(BaseModel):
     performed_by: str
     test_name: str
     result_value: float
+    explanation: str | None = None
+
+class CorrectionLogEntry(BaseModel):
+    sample_name: str
+    test_name: str
+    result: float
+    explanation: str
+    modified_by: str

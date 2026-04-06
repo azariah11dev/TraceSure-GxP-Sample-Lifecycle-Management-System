@@ -50,7 +50,7 @@ function loadComponent(htmlPath, jsPath) {
 async function loadDeviationForm() {
   const container = document.querySelector('#sample-deviation-component-deviation-details');
 
-  const res = await fetch('/navigation/components/deviation-form.html');
+  const res = await fetch('/navigation/components/deviation/deviation-form.html');
   const html = await res.text();
 
   container.innerHTML = html;
@@ -59,63 +59,63 @@ async function loadDeviationForm() {
 document.addEventListener("DOMContentLoaded", () => {
     // Default dashboard
     loadComponent(
-        "/navigation/components/dashboard-component.html",
+        "/navigation/components/dashboard/dashboard.html",
         "/scripts/dashboard/dashboard-main.js"
     );
 
     document.getElementById("create").addEventListener("click", () => {
         loadComponent(
-            "/navigation/components/sample-creation-component.html",
-            "/scripts/dashboard/components/sample-creation-component.js"
+            "/navigation/components/sample_creation/creation.html",
+            "/navigation/components/sample_creation/creation.js"
         );
     });
 
     document.getElementById("perform").addEventListener("click", () => {
         loadComponent(
-            "/navigation/components/sample-testing-component.html",
-            "/scripts/dashboard/components/sample-testing-component.js"
+            "/navigation/components/sample_testing/testing.html",
+            "/navigation/components/sample_testing/testing.js"
         );
     });
 
     document.getElementById("review").addEventListener("click", () => {
         loadComponent(
-            "/navigation/components/sample-review-component.html",
-            "/scripts/dashboard/components/sample-review-component.js"
+            "/navigation/components/sample_review/review.html",
+            "/navigation/components/sample_review/review.js"
         );
     });
 
     document.getElementById("approve").addEventListener("click", () => {
         loadComponent(
-            "/navigation/components/sample-approval-component.html",
-            "/scripts/dashboard/components/sample-approval-component.js"
+            "/navigation/components/sample_approval/approval.html",
+            "/navigation/components/sample_approval/approval.js"
         );
     });
 
     document.getElementById("deviation").addEventListener("click", () => {
         loadComponent(
-            "/navigation/components/sample-deviation-component.html",
-            "/scripts/dashboard/components/sample-deviation-component.js"
+            "/navigation/components/create_deviation/deviation.html",
+            "/navigation/components/create_deviation/deviation.js"
         );
     });
 
     document.getElementById("release").addEventListener("click", () => {
         loadComponent(
-            "/navigation/components/samples-released-component.html",
-            "/scripts/dashboard/components/samples-released-component.js"
+            "/navigation/components/sample_release/release.html",
+            "/navigation/components/sample_release/release.js"
         );
     });
 
     document.getElementById("historical").addEventListener("click", () => {
         loadComponent(
-            "/navigation/components/sample-history-component.html",
-            "/scripts/dashboard/components/sample-history-component.js"
+            "/navigation/components/sample_history/history.html",
+            "/navigation/components/sample_history/history.js"
         );
     });
 
     document.getElementById("pending-deviations").addEventListener("click", () => {
         loadComponent(
-            "/navigation/components/pending-deviations-component.html",
-            "/scripts/dashboard/components/pending-deviations-component.js"
+            "/navigation/components/pending_deviation/deviations.html",
+            "/navigation/components/pending_deviation/deviations.js"
         );
     });
 

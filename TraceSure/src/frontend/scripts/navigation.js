@@ -5,10 +5,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const path = window.location.pathname;
         // If we're inside /navigation/, go up one level
         if (path.includes("/navigation/")) {
-            window.location.href = "../index.html";
+            window.location.href = "../../index.html";
         } else {
         // Otherwise we're already at the root
-            window.location.href = "./index.html";
+            window.location.href = "/index.html";
         }
     });
 
@@ -16,11 +16,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!register_link) return;
     
     register_link.addEventListener("click", () => {
-        window.location.href = "./navigation/register.html";
+        window.location.href = "navigation/register/register.html";
     });
 
     const login_link = document.getElementById("account-login-btn");
     login_link.addEventListener("click", () => {
-        window.location.href = "./navigation/login.html";
+        window.location.href = "navigation/login/login.html";
     });
 });

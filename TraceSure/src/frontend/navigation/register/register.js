@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const login_btn = document.getElementById("login-button-page");
     login_btn.addEventListener("click", () => {
-        window.location.href = "../navigation/login.html"
+        window.location.href = "/navigation/login/login.html"
     });
 
     const register_btn = document.getElementById("register-button");
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (response.ok) {
             alert("Account created successfully!")
-            window.location.href = "../navigation/login.html";
+            window.location.href = "/navigation/login/login.html";
         } else {
             alert(data.detail || "Registration failed");
         }

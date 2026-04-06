@@ -105,10 +105,18 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     });
 
-    document.getElementById("historical-samples").addEventListener("click", () => {
+    document.getElementById("historical").addEventListener("click", () => {
         loadComponent(
             "/navigation/components/sample-history-component.html",
             "/scripts/dashboard/components/sample-history-component.js"
         );
     });
+
+    document.getElementById("pending-deviations").addEventListener("click", () => {
+        loadComponent(
+            "/navigation/components/pending-deviations-component.html",
+            "/scripts/dashboard/components/pending-deviations-component.js"
+        );
+    });
+
 });

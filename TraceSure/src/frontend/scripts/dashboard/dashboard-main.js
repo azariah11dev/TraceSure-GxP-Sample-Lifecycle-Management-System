@@ -31,13 +31,13 @@ async function initDashboard() {
 
   // Role based dashboard display (guard role and elements)
   const permissions = {
-    Admin: ["create", "perform", "review", "approve", "deviation", "release"],
-    Technician: ["create", "perform", "review"],
-    Manager: ["create", "approve", "deviation"],
-    Supervisor: ["create", "perform", "review", "deviation"],
-    QA: ["deviation", "release"]
+    Admin: ["create", "perform", "review", "approve", "deviation", "release", "historical", "pending-deviations"],
+    Technician: ["create", "perform", "review", "historical"],
+    Manager: ["create", "approve", "deviation", "historical", "pending-deviations"],
+    Supervisor: ["create", "perform", "review", "deviation", "historical"],
+    QA: ["deviation", "release", "historical"]
   };
-  const allItems = ["create", "perform", "review", "approve", "deviation", "release"];
+  const allItems = ["create", "perform", "review", "approve", "deviation", "release", "historical", "pending-deviations"];
 
   if (role && permissions[role]) {
     allItems.forEach(item => {

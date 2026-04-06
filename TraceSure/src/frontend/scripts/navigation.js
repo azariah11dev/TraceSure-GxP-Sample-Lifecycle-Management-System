@@ -13,6 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const register_link = document.getElementById("get-started-btn");
+    if (!register_link) return;
+    
     register_link.addEventListener("click", () => {
         window.location.href = "./navigation/register.html";
     });

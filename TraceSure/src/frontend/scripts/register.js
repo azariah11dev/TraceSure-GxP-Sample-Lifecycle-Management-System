@@ -10,6 +10,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const password = document.getElementById("password").value;
         const email = document.getElementById("email").value;
 
+        if (!username || !password || !email) {
+            alert("Please fill in all fields");
+            return;
+        }
+
       // Call FastAPI
         const response = await fetch("http://localhost:8000/auth/register", {
             method: "POST",

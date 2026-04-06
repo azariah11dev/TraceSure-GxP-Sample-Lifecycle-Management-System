@@ -47,6 +47,15 @@ function loadComponent(htmlPath, jsPath) {
         .catch(err => console.error("Component load error:", err));
 }
 
+async function loadDeviationForm() {
+  const container = document.querySelector('#sample-deviation-component-deviation-details');
+
+  const res = await fetch('/navigation/components/deviation-form.html');
+  const html = await res.text();
+
+  container.innerHTML = html;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     // Default dashboard
     loadComponent(

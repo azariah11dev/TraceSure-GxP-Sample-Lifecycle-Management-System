@@ -6,6 +6,48 @@ from models.trackerdb import Samples
 
 display_tests_router = APIRouter(prefix="/display_tests", tags=["display_tests"])
 
+@display_tests_router.get("/deviations")
+async def get_deviations(session: AsyncSession = Depends(get_async_session)):
+    query = select(Samples).where((Samples.status == "out_of_specification") | (Samples.status == "out_of_trend"))
+    rows = (await session.execute(query)).scalars().all()
+
+    if not rows:
+        return []
+
+    return [
+        {
+            "sample_name": r.sample_name,
+            "test_name": r.test_name,
+            "result": r.result,
+            "spec_upper": r.spec_range_upper_limit,
+            "spec_lower": r.spec_range_lower_limit,
+            "unit": r.unit,
+            "deviation_status": r.status
+        }
+        for r in rows
+    ]
+
+@display_tests_router.get("/{sample_name}")
+async def get_tests_for_sample(sample_name: str, session: AsyncSession = Depends(get_async_session)):
+    query = select(Samples).where(Samples.sample_name == sample_name)
+    rows = (await session.execute(query)).scalars().all()
+
+    if not rows:
+        return []
+
+    return [
+        {
+            "test_name": r.test_name,
+            "result": r.result,
+            "spec_upper": r.spec_range_upper_limit,
+            "spec_lower": r.spec_range_lower_limit,
+            "unit": r.unit,
+            "status": r.status,
+            "open_deviation": (True if (r.status == "out_of_specification") else False)
+        }
+        for r in rows
+    ]
+
 @display_tests_router.get("")
 async def display_tests(session: AsyncSession = Depends(get_async_session)):
     # Fetch all tests that are NOT approved
@@ -37,24 +79,3 @@ async def display_tests(session: AsyncSession = Depends(get_async_session)):
 
     # Convert dict → list for frontend
     return list(samples.values())
-
-@display_tests_router.get("/{sample_name}")
-async def get_tests_for_sample(sample_name: str, session: AsyncSession = Depends(get_async_session)):
-    query = select(Samples).where(Samples.sample_name == sample_name)
-    rows = (await session.execute(query)).scalars().all()
-
-    if not rows:
-        return []
-
-    return [
-        {
-            "test_name": r.test_name,
-            "result": r.result,
-            "spec_upper": r.spec_range_upper_limit,
-            "spec_lower": r.spec_range_lower_limit,
-            "unit": r.unit,
-            "status": r.status,
-            "open_deviation": (True if (r.status == "out_of_specification") else False)
-        }
-        for r in rows
-    ]

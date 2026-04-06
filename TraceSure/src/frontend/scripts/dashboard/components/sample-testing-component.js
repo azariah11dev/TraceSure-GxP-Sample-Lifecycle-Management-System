@@ -55,7 +55,7 @@ function renderEmpty() {
 }
 
 function escapeHtml(str = '') {
-  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
 // Attach a single delegated click handler to the table body (attach once)
@@ -83,54 +83,57 @@ waitForElement('#samples-table tbody').then(() => {
 
 // ==========================View Tests Details Panel Logic==========================
 
-let currentSampleName = null;
+if (!window.__sampleTestingInitialized) {
+  window.__sampleTestingInitialized = true;
 
-document.addEventListener("click", async (e) => {
-    if (!e.target.classList.contains("view-tests")) return;
+  let currentSampleName = null;
 
-    const sampleName = e.target.dataset.sample;
-    currentSampleName = sampleName;
+    document.addEventListener("click", async (e) => {
+      if (!e.target.classList.contains("view-tests")) return;
 
-    await loadTestsForSample(sampleName);
-});
+      const sampleName = e.target.dataset.sample;
+      currentSampleName = sampleName;
 
-// Close button (attach ONCE)
-document.getElementById("close-test-details").addEventListener("click", () => {
-    document.getElementById("sample-testing-component-test-details").classList.add("hidden");
-});
+      await loadTestsForSample(sampleName);
+    });
 
-// Modify button (delegated)
-document.addEventListener("click", (e) => {
-    if (!e.target.classList.contains("modify-test-result")) return;
+    // Close button (attach ONCE)
+    document.getElementById("close-test-details").addEventListener("click", () => {
+      document.getElementById("sample-testing-component-test-details").classList.add("hidden");
+    });
 
-    const row = e.target.closest("tr");
-    const input = row.querySelector(".test-result-input");
-    const submitBtn = row.querySelector(".submit-test-result");
+    // Modify button (delegated)
+    document.addEventListener("click", (e) => {
+      if (!e.target.classList.contains("modify-test-result")) return;
 
-    input.disabled = false;
-    submitBtn.disabled = false;
+      const row = e.target.closest("tr");
+      const input = row.querySelector(".test-result-input");
+      const submitBtn = row.querySelector(".submit-test-result");
 
-    e.target.hidden = true;
-});
+      input.disabled = false;
+      submitBtn.disabled = false;
 
-async function loadTestsForSample(sampleName) {
-    const panel = document.getElementById("sample-testing-component-test-details");
-    const title = document.getElementById("sample-testing-component-test-details-title");
-    const tbody = document.querySelector("#samples-tests tbody");
+      e.target.hidden = true;
+    });
 
-    // Show panel
-    panel.classList.remove("hidden");
-    // Set title
-    title.textContent = `Tests for: ${sampleName}`;
-    // Clear old rows
-    tbody.innerHTML = "";
+    async function loadTestsForSample(sampleName) {
+      const panel = document.getElementById("sample-testing-component-test-details");
+      const title = document.getElementById("sample-testing-component-test-details-title");
+      const tbody = document.querySelector("#samples-tests tbody");
 
-    // Fetch tests
-    const response = await fetch(`http://localhost:8000/display_tests/${sampleName}`);
-    const tests = await response.json();
+      // Show panel
+      panel.classList.remove("hidden");
+      // Set title
+      title.textContent = `Tests for: ${sampleName}`;
+      // Clear old rows
+      tbody.innerHTML = "";
 
-    // Render rows
-    tests.forEach(t => {
+      // Fetch tests
+      const response = await fetch(`http://localhost:8000/display_tests/${sampleName}`);
+      const tests = await response.json();
+
+      // Render rows
+      tests.forEach(t => {
         const row = document.createElement("tr");
         const isCompleted = t.status !== "";
 
@@ -141,91 +144,92 @@ async function loadTestsForSample(sampleName) {
         if (t.status === "out_of_specification") statusClass = "status-oos";
 
         row.innerHTML = `
-            <td>${t.test_name}</td>
-            <td>
-                <input type="number"
-                class="test-result-input"
-                placeholder="Enter result"
-                value="${t.result ?? ""}"
-                ${isCompleted ? "disabled" : ""}/>
-            </td>
-            <td>${t.spec_upper ?? ""}</td>
-            <td>${t.spec_lower ?? ""}</td>
-            <td>${t.unit ?? ""}</td>
-            <td>${t.status ?? ""}</td>
-            <td>${t.open_deviation ? "Yes" : "No"}</td>
-            <td>
-                <button class="submit-test-result"
-                data-test="${t.test_name}"
-                ${isCompleted ? "disabled" : ""}>
-                  Submit Result
-                </button>
-                <button class="modify-test-result"
-                data-test="${t.test_name}"
-                ${isCompleted ? "" : "hidden"}>
-                  Modify Result
-                </button>
-            </td>
-        `;
+              <td>${t.test_name}</td>
+              <td>
+                  <input type="number"
+                  class="test-result-input"
+                  placeholder="Enter result"
+                  value="${t.result ?? ""}"
+                  ${isCompleted ? "disabled" : ""}/>
+              </td>
+              <td>${t.spec_upper ?? ""}</td>
+              <td>${t.spec_lower ?? ""}</td>
+              <td>${t.unit ?? ""}</td>
+              <td>${t.status ?? ""}</td>
+              <td>${t.open_deviation ? "Yes" : "No"}</td>
+              <td>
+                  <button class="submit-test-result"
+                  data-test="${t.test_name}"
+                  ${isCompleted ? "disabled" : ""}>
+                    Submit Result
+                  </button>
+                  <button class="modify-test-result"
+                  data-test="${t.test_name}"
+                  ${isCompleted ? "" : "hidden"}>
+                    Modify Result
+                  </button>
+              </td>
+          `;
         tbody.appendChild(row);
-    });
-}
-
-document.addEventListener("click", async (e) => {
-    if (!e.target.classList.contains("submit-test-result")) return;
-
-    const row = e.target.closest("tr");
-    const input = row.querySelector(".test-result-input");
-    const original = input.dataset.original;
-    const updated = input.value.trim();
-
-    // Value cannot be empty
-    if (original === "") {
-      alert("Result value cannot be empty.");
-      return;
+      });
     }
 
-    // If unchanged, do nothing
-    if (updated === original) {
+    document.addEventListener("click", async (e) => {
+      if (!e.target.classList.contains("submit-test-result")) return;
+
+      const row = e.target.closest("tr");
+      const input = row.querySelector(".test-result-input");
+      const original = input.dataset.original;
+      const updated = input.value.trim();
+
+      // Value cannot be empty
+      if (original === "") {
+        alert("Result value cannot be empty.");
+        return;
+      }
+
+      // If unchanged, do nothing
+      if (updated === original) {
         alert("No changes detected.");
         return;
-    }
+      }
 
-    // If this was a modification, require justification
-    let explanation = null;
-    if (original !== "" && original !== updated) {
+      // If this was a modification, require justification
+      let explanation = null;
+      if (original !== "" && original !== updated) {
         explanation = prompt("Provide justification for modifying this result:");
         if (!explanation) {
-            alert("Modification cancelled — justification required.");
-            input.value = original;
-            input.disabled = true;
-            return;
+          alert("Modification cancelled — justification required.");
+          input.value = original;
+          input.disabled = true;
+          return;
         }
-    }
+      }
 
-    const response = await fetch("http://localhost:8000/update_test_result/log_results", {
+      const response = await fetch("http://localhost:8000/update_test_result/log_results", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            test_name: e.target.dataset.test,
-            performed_by: localStorage.getItem("username"),
-            result_value: updated,
-            sample_name: currentSampleName,
-            explanation: explanation
+          test_name: e.target.dataset.test,
+          performed_by: localStorage.getItem("username"),
+          result_value: updated,
+          sample_name: currentSampleName,
+          explanation: explanation
         })
-    });
+      });
 
-    if (response.ok) {
+      if (response.ok) {
         alert("Result submitted!");
         // Automatically refresh the table so status updates
         await loadTestsForSample(currentSampleName);
 
-    } else {
+      } else {
         let message = "An error occurred.";
         try {
-            const errorData = await response.json();
-            message = errorData.detail || message;
-        } catch {}
+          const errorData = await response.json();
+          message = errorData.detail || message;
+        } catch { }
         alert(message);
-    }
-});
+      }
+    });
+}

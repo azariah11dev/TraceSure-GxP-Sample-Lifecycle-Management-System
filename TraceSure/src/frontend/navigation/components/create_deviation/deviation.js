@@ -98,7 +98,7 @@ if (!window.__sampleDeviationInitialized) {
       const testValue = btn.dataset.test;
 
       //Load the form into the container
-      await loadDeviationForm();
+      await loadDeviationForm("#sample-deviation-component-deviation-details");
 
       // SHOW THE PANEL
       document.getElementById("sample-deviation-component-deviation-details")
@@ -131,104 +131,101 @@ if (!window.__sampleDeviationInitialized) {
             return; // stop here, do NOT try to autofill
           }
 
-          // replace the entire autofill block with this
-            if (!deviation) return;
+          // wait for form fields all at once
+          await Promise.all([
+            waitForElement("#PR-number"),
+            waitForElement("#deviation-date"),
+            waitForElement("#deviation-report-date"),
+            waitForElement("#deviation-department"),
+            waitForElement("#deviation-reported-at"),
+            waitForElement("#deviation-type"),
+            waitForElement("#deviation-severity"),
+            waitForElement("#deviation-short-description"),
+            waitForElement("#deviation-long-description"),
+            waitForElement("#deviation-location"),
+            waitForElement("#deviation-sop-number"),
+            waitForElement("#deviation-instrument-id"),
+            waitForElement("#test_name"),
+            waitForElement("#deviation-sample-type"),
+            waitForElement("#deviation-quantity-impacted"),
+            waitForElement("#deviation-batch-released"),
+            waitForElement("#potential-impact-to-product-quality"),
+            waitForElement("#immediate-action-taken"),
+            waitForElement("#date-action-taken"),
+            waitForElement("#deviation-test-performed-by"),
+            waitForElement("#was-testing-repeated"),
+            waitForElement("#reference-to-retest"),
+            waitForElement("#investigation-required"),
+            waitForElement("#investigation-assigned-to"),
+            waitForElement("#investigation-start-date"),
+            waitForElement("#investigation-end-date"),
+            waitForElement("#root-cause-category"),
+            waitForElement("#root-cause-description"),
+            waitForElement("#capa-required"),
+            waitForElement("#correction-action"),
+            waitForElement("#preventative-action"),
+            waitForElement("#responsible-person"),
+            waitForElement("#target-completion-date"),
+            waitForElement("#effectiveness-check-required"),
+            waitForElement("#batch-disposition"),
+          ]);
 
-            // wait for form fields all at once
-            await Promise.all([
-              waitForElement("#PR-number"),
-              waitForElement("#deviation-date"),
-              waitForElement("#deviation-report-date"),
-              waitForElement("#deviation-department"),
-              waitForElement("#deviation-reported-at"),
-              waitForElement("#deviation-type"),
-              waitForElement("#deviation-severity"),
-              waitForElement("#deviation-short-description"),
-              waitForElement("#deviation-long-description"),
-              waitForElement("#deviation-location"),
-              waitForElement("#deviation-sop-number"),
-              waitForElement("#deviation-instrument-id"),
-              waitForElement("#test_name"),
-              waitForElement("#deviation-sample-type"),
-              waitForElement("#deviation-quantity-impacted"),
-              waitForElement("#deviation-batch-released"),
-              waitForElement("#potential-impact-to-product-quality"),
-              waitForElement("#immediate-action-taken"),
-              waitForElement("#date-action-taken"),
-              waitForElement("#deviation-test-performed-by"),
-              waitForElement("#was-testing-repeated"),
-              waitForElement("#reference-to-retest"),
-              waitForElement("#investigation-required"),
-              waitForElement("#investigation-assigned-to"),
-              waitForElement("#investigation-start-date"),
-              waitForElement("#investigation-end-date"),
-              waitForElement("#root-cause-category"),
-              waitForElement("#root-cause-description"),
-              waitForElement("#capa-required"),
-              waitForElement("#correction-action"),
-              waitForElement("#preventative-action"),
-              waitForElement("#responsible-person"),
-              waitForElement("#target-completion-date"),
-              waitForElement("#effectiveness-check-required"),
-              waitForElement("#batch-disposition"),
-            ]);
+          // helper — converts bool true/false → "True"/"False" for select options
+          const toSelectBool = (v) => {
+            if (v === true || v === "true" || v === "1" || v === "yes") return "True";
+            if (v === false || v === "false" || v === "0" || v === "no") return "False";
+            return "";
+          };
 
-            // helper — converts bool true/false → "True"/"False" for select options
-            const toSelectBool = (v) => {
-              if (v === true || v === "true" || v === "1" || v === "yes") return "True";
-              if (v === false || v === "false" || v === "0" || v === "no") return "False";
-              return "";
-            };
+          // helper — strips time portion for date inputs: "2024-01-15T00:00:00" → "2024-01-15"
+          const toDate = (v) => v ? v.split("T")[0] : "";
 
-            // helper — strips time portion for date inputs: "2024-01-15T00:00:00" → "2024-01-15"
-            const toDate = (v) => v ? v.split("T")[0] : "";
+          // helper — formats for datetime-local: "2024-01-15T14:30:00" → "2024-01-15T14:30"
+          const toDateTimeLocal = (v) => v ? v.slice(0, 16) : "";
 
-            // helper — formats for datetime-local: "2024-01-15T14:30:00" → "2024-01-15T14:30"
-            const toDateTimeLocal = (v) => v ? v.slice(0, 16) : "";
+          // text / textarea fields — these work fine with direct assignment
+          document.querySelector("#PR-number").value = deviation.deviation_code || "";
+          document.querySelector("#deviation-reported-at").value = deviation.deviation_reported_at || "";
+          document.querySelector("#deviation-short-description").value = deviation.deviation_short_description || "";
+          document.querySelector("#deviation-long-description").value = deviation.deviation_long_description || "";
+          document.querySelector("#deviation-sop-number").value = deviation.deviation_sop_number || "";
+          document.querySelector("#deviation-instrument-id").value = deviation.deviation_instrument_id || "";
+          document.querySelector("#deviation-quantity-impacted").value = deviation.deviation_quantity_impacted ?? "";
+          document.querySelector("#potential-impact-to-product-quality").value = deviation.potential_impact_to_product_quality || "";
+          document.querySelector("#immediate-action-taken").value = deviation.immediate_action_taken || "";
+          document.querySelector("#deviation-test-performed-by").value = deviation.deviation_test_performed_by || "";
+          document.querySelector("#reference-to-retest").value = deviation.reference_to_retest || "";
+          document.querySelector("#investigation-assigned-to").value = deviation.investigation_assigned_to || "";
+          document.querySelector("#root-cause-description").value = deviation.root_cause_description || "";
+          document.querySelector("#correction-action").value = deviation.correction_action || "";
+          document.querySelector("#preventative-action").value = deviation.preventative_action || "";
+          document.querySelector("#responsible-person").value = deviation.responsible_person || "";
 
-            // text / textarea fields — these work fine with direct assignment
-            document.querySelector("#PR-number").value = deviation.deviation_code || "";
-            document.querySelector("#deviation-reported-at").value = deviation.deviation_reported_at || "";
-            document.querySelector("#deviation-short-description").value = deviation.deviation_short_description || "";
-            document.querySelector("#deviation-long-description").value = deviation.deviation_long_description || "";
-            document.querySelector("#deviation-sop-number").value = deviation.deviation_sop_number || "";
-            document.querySelector("#deviation-instrument-id").value = deviation.deviation_instrument_id || "";
-            document.querySelector("#deviation-quantity-impacted").value = deviation.deviation_quantity_impacted ?? "";
-            document.querySelector("#potential-impact-to-product-quality").value = deviation.potential_impact_to_product_quality || "";
-            document.querySelector("#immediate-action-taken").value = deviation.immediate_action_taken || "";
-            document.querySelector("#deviation-test-performed-by").value = deviation.deviation_test_performed_by || "";
-            document.querySelector("#reference-to-retest").value = deviation.reference_to_retest || "";
-            document.querySelector("#investigation-assigned-to").value = deviation.investigation_assigned_to || "";
-            document.querySelector("#root-cause-description").value = deviation.root_cause_description || "";
-            document.querySelector("#correction-action").value = deviation.correction_action || "";
-            document.querySelector("#preventative-action").value = deviation.preventative_action || "";
-            document.querySelector("#responsible-person").value = deviation.responsible_person || "";
+          // date fields — strip the time portion
+          document.querySelector("#date-action-taken").value = toDate(deviation.date_action_taken);
+          document.querySelector("#investigation-start-date").value = toDate(deviation.investigation_start_date);
+          document.querySelector("#investigation-end-date").value = toDate(deviation.investigation_end_date);
+          document.querySelector("#target-completion-date").value = toDate(deviation.target_completion_date);
 
-            // date fields — strip the time portion
-            document.querySelector("#date-action-taken").value = toDate(deviation.date_action_taken);
-            document.querySelector("#investigation-start-date").value = toDate(deviation.investigation_start_date);
-            document.querySelector("#investigation-end-date").value = toDate(deviation.investigation_end_date);
-            document.querySelector("#target-completion-date").value = toDate(deviation.target_completion_date);
+          // datetime-local fields — keep only up to minutes
+          document.querySelector("#deviation-date").value = toDateTimeLocal(deviation.deviation_date);
+          document.querySelector("#deviation-report-date").value = toDateTimeLocal(deviation.deviation_report_date);
 
-            // datetime-local fields — keep only up to minutes
-            document.querySelector("#deviation-date").value = toDateTimeLocal(deviation.deviation_date);
-            document.querySelector("#deviation-report-date").value = toDateTimeLocal(deviation.deviation_report_date);
+          // select fields — value must exactly match an option
+          document.querySelector("#deviation-department").value = deviation.deviation_department || "";
+          document.querySelector("#deviation-type").value = deviation.deviation_type || "";
+          document.querySelector("#deviation-severity").value = deviation.deviation_severity || "";
+          document.querySelector("#deviation-location").value = deviation.deviation_location || "";
+          document.querySelector("#deviation-sample-type").value = deviation.deviation_sample_type || "";
+          document.querySelector("#root-cause-category").value = deviation.root_cause_category || "";
+          document.querySelector("#batch-disposition").value = deviation.batch_disposition || "";
 
-            // select fields — value must exactly match an option
-            document.querySelector("#deviation-department").value = deviation.deviation_department || "";
-            document.querySelector("#deviation-type").value = deviation.deviation_type || "";
-            document.querySelector("#deviation-severity").value = deviation.deviation_severity || "";
-            document.querySelector("#deviation-location").value = deviation.deviation_location || "";
-            document.querySelector("#deviation-sample-type").value = deviation.deviation_sample_type || "";
-            document.querySelector("#root-cause-category").value = deviation.root_cause_category || "";
-            document.querySelector("#batch-disposition").value = deviation.batch_disposition || "";
-
-            // boolean selects — must convert to "True"/"False" string
-            document.querySelector("#deviation-batch-released").value = toSelectBool(deviation.deviation_batch_released);
-            document.querySelector("#was-testing-repeated").value = toSelectBool(deviation.was_testing_repeated);
-            document.querySelector("#investigation-required").value = toSelectBool(deviation.investigation_required);
-            document.querySelector("#capa-required").value = toSelectBool(deviation.capa_required);
-            document.querySelector("#effectiveness-check-required").value = toSelectBool(deviation.effectiveness_check_required);
+          // boolean selects — must convert to "True"/"False" string
+          document.querySelector("#deviation-batch-released").value = toSelectBool(deviation.deviation_batch_released);
+          document.querySelector("#was-testing-repeated").value = toSelectBool(deviation.was_testing_repeated);
+          document.querySelector("#investigation-required").value = toSelectBool(deviation.investigation_required);
+          document.querySelector("#capa-required").value = toSelectBool(deviation.capa_required);
+          document.querySelector("#effectiveness-check-required").value = toSelectBool(deviation.effectiveness_check_required);
 
           console.log("Loaded deviation:", deviation);
         } else {
@@ -250,12 +247,15 @@ if (!window.__sampleDeviationInitialized) {
         return;
       }
 
-      // Submit button
-      if (e.target.closest("#deviation-form-submit-button")) {
+      const submitBtn = e.target.closest("#deviation-form-submit-button");
+      const saveBtn = e.target.closest("#deviation-form-save-button");
+
+      // Submit or save button
+      if (submitBtn || saveBtn) {
         e.preventDefault();
         e.stopPropagation();
 
-        console.log("Submit clicked");
+        const formStatus = saveBtn ? "draft" : "submitted";
 
         const sampleValue = document.getElementById("sample_name").value;
         const testValue = document.getElementById("test_name").value;
@@ -265,7 +265,6 @@ if (!window.__sampleDeviationInitialized) {
 
         const submittedBy = localStorage.getItem("username");
         const role = localStorage.getItem("role");
-        const isManager = role.toLowerCase() === "manager" ? submittedBy : null;
 
         const toBool = (v) => {
           if (!v) return false;
@@ -278,8 +277,12 @@ if (!window.__sampleDeviationInitialized) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             ...data,
+            form_status: formStatus,
             submitted_by: submittedBy,
-            manager_name: isManager,
+            submitted_by_role: role,
+            approver_name: null,
+            approver_role: null,
+            approval_status: null,
             sample_name: sampleValue,
             test_name: testValue,
 

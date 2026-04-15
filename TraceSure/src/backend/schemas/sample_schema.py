@@ -21,8 +21,12 @@ class CorrectionLogEntry(BaseModel):
     modified_by: str
 
 class DeviationSchema(BaseModel):
+    form_status: str
     submitted_by: str
-    manager_name: str | None = None
+    submitted_by_role: str
+    approver_name: str | None = None
+    approver_role: str | None = None
+    approval_status: bool | None = None
 
     sample_name: str
     test_name: str
@@ -71,3 +75,10 @@ class DeviationSchema(BaseModel):
 
     effectiveness_check_required: bool
     batch_disposition: str
+
+class DeviationApprovalSchema(BaseModel):
+    deviation_code: str
+    approver_name: str
+    approver_role: str
+    approval_status: bool
+    form_status: str

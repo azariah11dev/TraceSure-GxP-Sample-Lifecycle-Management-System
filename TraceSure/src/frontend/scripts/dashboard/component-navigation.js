@@ -37,23 +37,28 @@ function loadComponent(htmlPath, jsPath) {
             // Load new component script
             if (jsPath) {
                 requestAnimationFrame(() => {
-                const script = document.createElement("script");
-                script.src = jsPath + "?v=" + Date.now();
-                document.body.appendChild(script);
-                activeScript = script;
+                    const script = document.createElement("script");
+                    script.src = jsPath + "?v=" + Date.now();
+                    document.body.appendChild(script);
+                    activeScript = script;
                 });
             }
         })
         .catch(err => console.error("Component load error:", err));
 }
 
-async function loadDeviationForm() {
-  const container = document.querySelector('#sample-deviation-component-deviation-details');
+async function loadDeviationForm(targetSelector) {
+    const container = document.querySelector(targetSelector);
 
-  const res = await fetch('/navigation/components/create_deviation/deviation-form.html');
-  const html = await res.text();
+    if (!container) {
+        console.error(`Container not found: ${targetSelector}`);
+        return;
+    }
 
-  container.innerHTML = html;
+    const res = await fetch('/navigation/components/create_deviation/deviation-form.html');
+    const html = await res.text();
+
+    container.innerHTML = html;
 }
 
 document.addEventListener("DOMContentLoaded", () => {

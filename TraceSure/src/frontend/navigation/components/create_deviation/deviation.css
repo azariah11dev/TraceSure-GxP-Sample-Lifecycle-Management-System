@@ -91,7 +91,8 @@
     gap: 20px;
     margin: 10px 0px 10px;
 }
-#deviation-form-close-button, #deviation-form-submit-button{
+#deviation-form-close-button, #deviation-form-submit-button,
+#deviation-form-save-button {
     background-color: #00004d;
     color: #ffffff;
     border: none;
@@ -99,7 +100,8 @@
     border-radius: 5px;
     cursor: pointer;
 }
-#deviation-form-close-button:hover, #deviation-form-submit-button:hover {
+#deviation-form-close-button:hover, #deviation-form-submit-button:hover,
+#deviation-form-save-button:hover {
     background-color: #000066;
     transform: scale(1.05);
 }

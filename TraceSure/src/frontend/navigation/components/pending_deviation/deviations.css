@@ -42,3 +42,16 @@
 #pending-deviations-table td {
     font-weight: 600;
 }
+
+.view-deviation-btn, .approve-deviation-btn, .reject-deviation-btn {
+    background-color: #00004d;
+    color: #ffffff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.view-deviation-btn:hover, .approve-deviation-btn:hover, .reject-deviation-btn:hover {
+    background-color: #000066;
+    transform: scale(1.05);
+}

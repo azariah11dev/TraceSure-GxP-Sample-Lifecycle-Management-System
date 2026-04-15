@@ -2,17 +2,33 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from dependencies.dependency import get_async_session
-from models.trackerdb import Samples
+from models.trackerdb import Samples, DeviationForm
 
 display_tests_router = APIRouter(prefix="/display_tests", tags=["display_tests"])
 
 @display_tests_router.get("/deviations")
 async def get_deviations(session: AsyncSession = Depends(get_async_session)):
-    query = select(Samples).where((Samples.status == "out_of_specification") | (Samples.status == "out_of_trend"))
-    rows = (await session.execute(query)).scalars().all()
+    # Get all OOS/OOT tests
+    rows = (await session.execute(
+        select(Samples).where(
+            (Samples.status == "out_of_specification") |
+            (Samples.status == "out_of_trend")
+        )
+    )).scalars().all()
 
     if not rows:
         return []
+
+    # Get ALL deviation forms (not only approved)
+    deviations = (await session.execute(
+        select(DeviationForm)
+    )).scalars().all()
+
+    # Build a lookup dictionary for fast matching
+    deviation_lookup = {
+        (d.sample_name, d.test_name): d.form_status
+        for d in deviations
+    }
 
     return [
         {
@@ -22,7 +38,8 @@ async def get_deviations(session: AsyncSession = Depends(get_async_session)):
             "spec_upper": r.spec_range_upper_limit,
             "spec_lower": r.spec_range_lower_limit,
             "unit": r.unit,
-            "deviation_status": r.status
+            "deviation_status": r.status,
+            "form_status": deviation_lookup.get((r.sample_name, r.test_name))
         }
         for r in rows
     ]

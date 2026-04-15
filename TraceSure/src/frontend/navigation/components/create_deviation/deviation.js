@@ -36,6 +36,8 @@ function renderTests(tests = []) {
   }
 
   tests.forEach(t => {
+    const isApproved = t.form_status?.toLowerCase() === "approved";
+    const buttonText = isApproved ? "View Retest" : "View Deviation";
     const row = document.createElement('tr');
     row.innerHTML = `
       <td>${escapeHtml(t.sample_name)}</td>
@@ -49,9 +51,20 @@ function renderTests(tests = []) {
         <button 
           data-sample="${escapeHtml(t.sample_name)}" 
           data-test="${escapeHtml(t.test_name)}"
+          data-form-status="${escapeHtml(t.form_status ?? "")}"
           class="view-tests-deviations"
         >
-          View Deviation
+          ${buttonText}
+        </button>
+      </td>
+      <td class="retest-sample-container hidden">
+        <button 
+          data-sample="${escapeHtml(t.sample_name)}"
+          data-test="${escapeHtml(t.test_name)}"
+          data-form-status="${escapeHtml(t.form_status ?? "")}"
+          class="retest-sample-btn"
+        >
+          Retest Sample
         </button>
       </td>
     `;
@@ -129,6 +142,27 @@ if (!window.__sampleDeviationInitialized) {
           if (!deviation) {
             console.log("No existing deviation found — new form");
             return; // stop here, do NOT try to autofill
+          }
+
+          const isApproved = deviation.form_status?.toLowerCase() === "approved";
+
+          const submitBtn = await waitForElement("#deviation-form-submit-button");
+          const saveBtn = await waitForElement("#deviation-form-save-button");
+          const retestHeader = document.querySelector(".retest-information");
+          const retestContainer = document.querySelector(".retest-sample-container");
+
+          if (isApproved) {
+            submitBtn.style.display = "none";
+            saveBtn.style.display = "none";
+
+            if (retestHeader) {
+              retestHeader.classList.remove("hidden");
+            }
+
+            if (retestContainer) {
+              retestContainer.classList.remove("hidden");
+            }
+            return;
           }
 
           // wait for form fields all at once
@@ -321,3 +355,5 @@ if (!window.__sampleDeviationInitialized) {
     });
   });
 }
+
+// ================================== Retest Panel Logic ======================================

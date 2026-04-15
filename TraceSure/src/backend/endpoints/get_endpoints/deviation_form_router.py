@@ -42,7 +42,7 @@ async def get_deviation(
         select(DeviationForm)
         .where(DeviationForm.sample_name == sample_name)
         .where(DeviationForm.test_name == test_name)
-        .where(func.lower(DeviationForm.form_status) == "submitted")
+        .where(func.lower(DeviationForm.form_status) == "draft" or func.lower(DeviationForm.form_status) == "approved")
     )
 
     result = await session.execute(query)

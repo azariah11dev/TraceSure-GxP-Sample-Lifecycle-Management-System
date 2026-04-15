@@ -135,7 +135,7 @@ if (!window.__sampleTestingInitialized) {
       // Render rows
       tests.forEach(t => {
         const row = document.createElement("tr");
-        const isCompleted = t.status !== "";
+        const isCompleted = t.result !== null && t.result !== undefined && t.result !== "";
 
         // Optional: color-code status
         let statusClass = "";
@@ -149,7 +149,8 @@ if (!window.__sampleTestingInitialized) {
                   <input type="number"
                   class="test-result-input"
                   placeholder="Enter result"
-                  value="${t.result ?? ""}"
+                  value="${t.result ?? ""}" 
+                  data-original="${t.result ?? ""}"
                   ${isCompleted ? "disabled" : ""}/>
               </td>
               <td>${t.spec_upper ?? ""}</td>
@@ -179,11 +180,11 @@ if (!window.__sampleTestingInitialized) {
 
       const row = e.target.closest("tr");
       const input = row.querySelector(".test-result-input");
-      const original = input.dataset.original;
+      const original = input.dataset.original ?? "";
       const updated = input.value.trim();
 
       // Value cannot be empty
-      if (original === "") {
+      if (updated === "") {
         alert("Result value cannot be empty.");
         return;
       }
@@ -196,7 +197,7 @@ if (!window.__sampleTestingInitialized) {
 
       // If this was a modification, require justification
       let explanation = null;
-      if (original !== "" && original !== updated) {
+      if (original !== "" && updated !== original) {
         explanation = prompt("Provide justification for modifying this result:");
         if (!explanation) {
           alert("Modification cancelled — justification required.");
@@ -220,6 +221,7 @@ if (!window.__sampleTestingInitialized) {
 
       if (response.ok) {
         alert("Result submitted!");
+        input.dataset.original = updated;
         // Automatically refresh the table so status updates
         await loadTestsForSample(currentSampleName);
 

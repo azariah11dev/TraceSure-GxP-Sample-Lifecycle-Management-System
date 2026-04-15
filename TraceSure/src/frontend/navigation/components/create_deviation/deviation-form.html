@@ -1,27 +1,37 @@
-<form id="deviation-form">
+<form id="deviation-form" onsubmit="event.preventDefault(); return false;">
     <h1 style="text-align: center;">Deviation Details</h1>
+
+    <!-- SECTION 1: Basic Identification -->
     <div class="deviation-details-part-1">
         <h2>Basic Identification</h2>
+
         <label for="PR-number">PR Number:</label>
-        <input type="text" id="PR-number">
+        <input type="text" id="PR-number" name="deviation_code">
+
         <label for="deviation-date">Date/Time of Event:</label>
-        <input type="datetime-local" id="deviation-date">
+        <input type="datetime-local" id="deviation-date" name="deviation_date" required>
+
         <label for="deviation-report-date">Date/Time of Report:</label>
-        <input type="datetime-local" id="deviation-report-date">
+        <input type="datetime-local" id="deviation-report-date" name="deviation_report_date" required>
+
         <label for="deviation-department">Department:</label>
-        <select id="deviation-department">
+        <select id="deviation-department" name="deviation_department" required>
             <option value="">Select Department</option>
             <option value="QA">Quality Assurance</option>
             <option value="QC">Quality Control</option>
             <option value="R&D">Research and Development</option>
         </select>
-        <label for="deviation-reported-at">Deviation Reported At</label>
-        <input type="text" id="deviation-reported-at" placeholder="Site/Location">
+
+        <label for="deviation-reported-at">Deviation Reported At:</label>
+        <input type="text" id="deviation-reported-at" name="deviation_reported_at" placeholder="Site/Location" required>
     </div>
+
+    <!-- SECTION 2: Deviation Classification -->
     <div class="deviation-details-part-2">
-        <h1>Deviation Classification</h1>
+        <h2>Deviation Classification</h2>
+
         <label for="deviation-type">Deviation Type:</label>
-        <select id="deviation-type">
+        <select id="deviation-type" name="deviation_type" required>
             <option value="">Select Deviation Type</option>
             <option value="out_of_specification">Out of Specification</option>
             <option value="out_of_trend">Out of Trend</option>
@@ -29,84 +39,114 @@
             <option value="procedure_deviation">Procedure Deviation</option>
             <option value="instrument_failure">Instrument Failure</option>
         </select>
+
         <label for="deviation-severity">Severity Level:</label>
-        <select id="deviation-severity">
+        <select id="deviation-severity" name="deviation_severity" required>
             <option value="">Select Severity Level</option>
             <option value="low">Low</option>
             <option value="medium">Medium</option>
             <option value="high">High</option>
         </select>
     </div>
+
+    <!-- SECTION 3: Event Description -->
     <div class="deviation-details-part-3">
-        <h1>Event Description</h1>
-        <label for="deviation-short-description">Short Description</label>
-        <textarea id="deviation-short-description" placeholder="Short description"></textarea>
-        <label for="deviation-long-description">Detailed Description</label>
-        <textarea id="deviation-long-description" placeholder="Enter your text here"></textarea>
+        <h2>Event Description</h2>
+
+        <label for="deviation-short-description">Short Description:</label>
+        <textarea id="deviation-short-description" name="deviation_short_description" placeholder="Short description (max 200 characters)" maxlength="200" required></textarea>
+
+        <label for="deviation-long-description">Detailed Description:</label>
+        <textarea id="deviation-long-description" name="deviation_long_description" placeholder="Enter your text here" required></textarea>
+
         <label for="deviation-location">Step in Process Where Deviation Occurred:</label>
-        <select id="deviation-location">
+        <select id="deviation-location" name="deviation_location" required>
             <option value="sample preparation">Sample Prep</option>
             <option value="analysis">Analysis</option>
             <option value="data processing">Data Processing</option>
             <option value="reporting">Reporting</option>
         </select>
-        <label for="deviation-sop-number">Method/SOP Number</label>
-        <input type="text" id="deviation-sop-number">
-        <label for="deviation-instrument-id">Instrument ID</label>
-        <input type="text" id="deviation-instrument-id">
+
+        <label for="deviation-sop-number">Method/SOP Number:</label>
+        <input type="text" id="deviation-sop-number" name="deviation_sop_number">
+
+        <label for="deviation-instrument-id">Instrument ID:</label>
+        <input type="text" id="deviation-instrument-id" name="deviation_instrument_id">
     </div>
+
+    <!-- SECTION 4: Product / Material Impact -->
     <div class="deviation-details-part-4">
-        <h1>Product / Material Impact</h1>
+        <h2>Product / Material Impact</h2>
+
         <input type="hidden" name="sample_name" id="sample_name">
         <input type="hidden" name="test_name" id="test_name">
-        <label for="deviation-sample-type">Sample Type</label>
-        <select id="deviation-sample-type">
-            <option value="raw material">Raw material</option>
-            <option value="in-process">In-process</option>
+
+        <label for="deviation-sample-type">Sample Type:</label>
+        <select id="deviation-sample-type" name="deviation_sample_type" required>
+            <option value="raw material">Raw Material</option>
+            <option value="in-process">In-Process</option>
             <option value="finished product">Finished Product</option>
             <option value="stability">Stability</option>
         </select>
-        <label for="deviation-quantity-impacted">Quantity Impacted</label>
-        <input type="number" id="deviation-quantity-impacted">
+
+        <label for="deviation-quantity-impacted">Quantity Impacted:</label>
+        <input type="number" id="deviation-quantity-impacted" name="deviation_quantity_impacted" required>
+
         <label for="deviation-batch-released">Is Batch Released?</label>
-        <select id="deviation-batch-released">
+        <select id="deviation-batch-released" name="deviation_batch_released" required>
             <option value="True">Yes</option>
             <option value="False">No</option>
         </select>
-        <label for="potential-impact-to-product-quality">Potential Impact to Product Quality</label>
-        <textarea id="potential-impact-to-product-quality" placeholder="Any comments"></textarea>
+
+        <label for="potential-impact-to-product-quality">Potential Impact to Product Quality:</label>
+        <textarea id="potential-impact-to-product-quality" name="potential_impact_to_product_quality" placeholder="Any comments" required></textarea>
     </div>
+
+    <!-- SECTION 5: Immediate Actions -->
     <div class="deviation-details-part-5">
-        <h1>Immediate Actions</h1>
-        <label for="immediate-action-taken">Action Taken Immediately</label>
-        <input type="text" id="immediate-action-taken" placeholder="e.g., test stopped, sample quarantined">
-        <label for="date-action-taken">Date Action Taken</label>
-        <input type="date" id="date-action-taken">
-        <label for="deviation-test-performed-by">Performed By</label>
-        <input type="text" id="deviation-test-performed-by">
+        <h2>Immediate Actions</h2>
+
+        <label for="immediate-action-taken">Action Taken Immediately:</label>
+        <input type="text" id="immediate-action-taken" name="immediate_action_taken" placeholder="e.g., test stopped, sample quarantined" required>
+
+        <label for="date-action-taken">Date Action Taken:</label>
+        <input type="date" id="date-action-taken" name="date_action_taken" required>
+
+        <label for="deviation-test-performed-by">Performed By:</label>
+        <input type="text" id="deviation-test-performed-by" name="deviation_test_performed_by" required>
+
         <label for="was-testing-repeated">Was Testing Repeated?</label>
-        <select id="was-testing-repeated">
+        <select id="was-testing-repeated" name="was_testing_repeated" required>
             <option value="True">Yes</option>
             <option value="False">No</option>
         </select>
-        <label for="reference-to-retest">Reference to Retest/Resample Record</label>
-        <input type="text" id="reference-to-retest">
+
+        <label for="reference-to-retest">Reference to Retest/Resample Record:</label>
+        <input type="text" id="reference-to-retest" name="reference_to_retest">
     </div>
+
+    <!-- SECTION 6: Investigation -->
     <div class="deviation-details-part-6">
-        <h1>Investigation</h1>
+        <h2>Investigation</h2>
+
         <label for="investigation-required">Investigation Required?</label>
-        <select id="investigation-required">
+        <select id="investigation-required" name="investigation_required" required>
             <option value="True">Yes</option>
             <option value="False">No</option>
         </select>
-        <label for="investigation-assigned-to">Investigator Assigned</label>
-        <input type="text" id="investigation-assigned-to">
-        <label for="investigation-start-date">Investigation Start Date</label>
-        <input type="date" id="investigation-start-date">
-        <label for="investigation-end-date">Investigation End Date</label>
-        <input type="date" id="investigation-end-date">
-        <label for="root-cause-category">Root Cause Category</label>
-        <select id="root-cause-category">
+
+        <label for="investigation-assigned-to">Investigator Assigned:</label>
+        <input type="text" id="investigation-assigned-to" name="investigation_assigned_to">
+
+        <label for="investigation-start-date">Investigation Start Date:</label>
+        <input type="date" id="investigation-start-date" name="investigation_start_date">
+
+        <label for="investigation-end-date">Investigation End Date:</label>
+        <input type="date" id="investigation-end-date" name="investigation_end_date">
+
+        <label for="root-cause-category">Root Cause Category:</label>
+        <select id="root-cause-category" name="root_cause_category">
+            <option value="">Select Root Cause</option>
             <option value="Human Error">Human Error</option>
             <option value="Method Issue">Method Issue</option>
             <option value="Instrument Failure">Instrument Failure</option>
@@ -114,42 +154,55 @@
             <option value="Material Issue">Material Issue</option>
             <option value="System/LIMS Issue">System/LIMS Issue</option>
         </select>
-        <label for="root-cause-description">Root Cause Description</label>
-        <textarea id="root-cause-description"></textarea>
+
+        <label for="root-cause-description">Root Cause Description:</label>
+        <textarea id="root-cause-description" name="root_cause_description"></textarea>
     </div>
+
+    <!-- SECTION 7: CAPA -->
     <div class="deviation-details-part-7">
-        <h1>CAPA (Corrective and Preventive Actions)</h1>
+        <h2>CAPA (Corrective and Preventive Actions)</h2>
+
         <label for="capa-required">CAPA Required?</label>
-        <select id="capa-required">
+        <select id="capa-required" name="capa_required" required>
             <option value="True">Yes</option>
             <option value="False">No</option>
         </select>
-        <label for="correction-action">Corrective Action(s)</label>
-        <textarea id="correction-action"></textarea>
-        <label for="preventative-action">Preventive Action(s)</label>
-        <textarea id="preventative-action"></textarea>
-        <label for="responsible-person">Responsible Person</label>
-        <input type="text" id="responsible-person">
-        <label for="target-completion-date">Target Completion Date</label>
-        <input type="date" id="target-completion-date">
-        <label for="effectiveness-check-required">Effectiveness Check Required</label>
-        <select id="effectiveness-check-required">
+
+        <label for="correction-action">Corrective Action(s):</label>
+        <textarea id="correction-action" name="correction_action"></textarea>
+
+        <label for="preventative-action">Preventive Action(s):</label>
+        <textarea id="preventative-action" name="preventative_action"></textarea>
+
+        <label for="responsible-person">Responsible Person:</label>
+        <input type="text" id="responsible-person" name="responsible_person">
+
+        <label for="target-completion-date">Target Completion Date:</label>
+        <input type="date" id="target-completion-date" name="target_completion_date">
+
+        <label for="effectiveness-check-required">Effectiveness Check Required:</label>
+        <select id="effectiveness-check-required" name="effectiveness_check_required" required>
             <option value="True">Yes</option>
             <option value="False">No</option>
         </select>
     </div>
+
+    <!-- SECTION 8: QA Review & Disposition -->
     <div class="deviation-details-part-8">
-        <h1>QA Review & Disposition</h1>
-        <label for="batch-disposition">Batch Disposition</label>
-        <select id="batch-disposition">
+        <h2>QA Review & Disposition</h2>
+
+        <label for="batch-disposition">Batch Disposition:</label>
+        <select id="batch-disposition" name="batch_disposition" required>
             <option value="release">Release</option>
             <option value="reject">Reject</option>
             <option value="rework">Rework</option>
             <option value="hold">Hold</option>
         </select>
     </div>
+
     <div class="button-holder">
         <button id="deviation-form-close-button">Close Form</button>
-        <button id="deviation-form-submit-button">Submit Button</button>
+        <button id="deviation-form-submit-button">Submit</button>
     </div>
 </form>

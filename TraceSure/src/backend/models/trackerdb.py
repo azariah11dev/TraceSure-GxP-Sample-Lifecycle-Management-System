@@ -65,6 +65,9 @@ class DeviationForm(Base):
     __tablename__ = "deviation_form"
 
     deviation_code = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
+    submitted_by = Column(String, index=True)
+    manager_name = Column(String, index=True)
+    manager_approval = Column(Boolean)
     sample_name = Column(String, index=True, nullable=False)
     test_name = Column(String, index=True, nullable= False)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

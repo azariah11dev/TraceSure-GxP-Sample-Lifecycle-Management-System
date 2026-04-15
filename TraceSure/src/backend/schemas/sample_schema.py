@@ -21,6 +21,9 @@ class CorrectionLogEntry(BaseModel):
     modified_by: str
 
 class DeviationSchema(BaseModel):
+    submitted_by: str
+    manager_name: str | None = None
+
     sample_name: str
     test_name: str
     deviation_date: datetime

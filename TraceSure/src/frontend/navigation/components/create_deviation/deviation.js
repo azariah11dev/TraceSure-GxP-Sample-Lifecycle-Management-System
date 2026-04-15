@@ -87,22 +87,22 @@ waitForElement('#samples-deviation-table tbody').then(() => {
 if (!window.__sampleDeviationInitialized) {
   window.__sampleDeviationInitialized = true;
 
-  // wait deviation component HTML to exist
   waitForElement("#sample-deviation-component-deviation-details").then(() => {
+
+    // VIEW DEVIATION HANDLER
     document.addEventListener("click", async (e) => {
       const btn = e.target.closest(".view-tests-deviations");
       if (!btn) return;
 
       const sampleValue = btn.dataset.sample;
       const testValue = btn.dataset.test;
-      console.log("sampleValue:", sampleValue);
-      console.log("testValue:", testValue);
-
-      const panel = document.getElementById("sample-deviation-component-deviation-details");
-      panel.classList.remove("hidden");
 
       //Load the form into the container
       await loadDeviationForm();
+
+      // SHOW THE PANEL
+      document.getElementById("sample-deviation-component-deviation-details")
+        .classList.remove("hidden");
 
       //Automatically load the sample names
       Promise.all([
@@ -116,84 +116,119 @@ if (!window.__sampleDeviationInitialized) {
       // Fetch existing deviation (if any)
       try {
         const res = await fetch(
-          `http://localhost:8000/deviation?sample_name=${encodeURIComponent(sampleValue)}&test_name=${encodeURIComponent(testValue)}`
+          `http://localhost:8000/deviation_form?sample_name=${encodeURIComponent(sampleValue)}&test_name=${encodeURIComponent(testValue)}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+          }
         );
 
         if (res.ok) {
           const deviation = await res.json();
-          
-          // Auto-fill deviation fields
-          await waitForElement("#PR-number");
-          await waitForElement("#deviation-date");
-          await waitForElement("#deviation-report-date");
-          await waitForElement("#deviation-department");
-          await waitForElement("#deviation-reported-at");
-          await waitForElement("#deviation-type");
-          await waitForElement("#deviation-severity");
-          await waitForElement("#deviation-short-description");
-          await waitForElement("#deviation-long-description");
-          await waitForElement("#deviation-location");
-          await waitForElement("#deviation-sop-number");
-          await waitForElement("#deviation-instrument-id");
-          await waitForElement("#test_name");
-          await waitForElement("#deviation-sample-type");
-          await waitForElement("#deviation-quantity-impacted");
-          await waitForElement("#deviation-batch-released");
-          await waitForElement("#potential-impact-to-product-quality");
-          await waitForElement("#immediate-action-taken");
-          await waitForElement("#date-action-taken");
-          await waitForElement("#deviation-test-performed-by");
-          await waitForElement("#was-testing-repeated");
-          await waitForElement("#reference-to-retest");
-          await waitForElement("#investigation-required");
-          await waitForElement("#investigation-assigned-to");
-          await waitForElement("#investigation-start-date");
-          await waitForElement("#investigation-end-date");
-          await waitForElement("#root-cause-category");
-          await waitForElement("#root-cause-description");
-          await waitForElement("#capa-required");
-          await waitForElement("#correction-action");
-          await waitForElement("#preventative-action");
-          await waitForElement("#responsible-person");
-          await waitForElement("#target-completion-date");
-          await waitForElement("#effectiveness-check-required");
-          await waitForElement("#batch-disposition");
 
-          document.querySelector("#PR-number").value = deviation.deviation_code || "";
-          document.querySelector("#deviation-date").value = deviation.deviation_date || "";
-          document.querySelector("#deviation-report-date").value = deviation.deviation_report_date || "";
-          document.querySelector("#deviation-department").value = deviation.deviation_department || "";
-          document.querySelector("#deviation-reported-at").value = deviation.deviation_reported_at || "";
-          document.querySelector("#deviation-type").value = deviation.deviation_type || "";
-          document.querySelector("#deviation-severity").value = deviation.deviation_severity || "";
-          document.querySelector("#deviation-short-description").value = deviation.deviation_short_description || "";
-          document.querySelector("#deviation-long-description").value = deviation.deviation_long_description || "";
-          document.querySelector("#deviation-location").value = deviation.deviation_location || "";
-          document.querySelector("#deviation-sop-number").value = deviation.deviation_sop_number || "";
-          document.querySelector("#deviation-instrument-id").value = deviation.deviation_instrument_id || "";
-          document.querySelector("#test_name").value = deviation.test_name || "";
-          document.querySelector("#deviation-sample-type").value = deviation.deviation_sample_type || "";
-          document.querySelector("#deviation-quantity-impacted").value = deviation.deviation_quantity_impacted || "";
-          document.querySelector("#deviation-batch-released").value = deviation.deviation_batch_released || "";
-          document.querySelector("#potential-impact-to-product-quality").value = deviation.deviation_potential_impact_to_product_quality || "";
-          document.querySelector("#immediate-action-taken").value = deviation.deviation_immediate_action_taken || "";
-          document.querySelector("#date-action-taken").value = deviation.deviation_date_action_taken || "";
-          document.querySelector("#deviation-test-performed-by").value = deviation.deviation_test_performed_by || "";
-          document.querySelector("#was-testing-repeated").value = deviation.deviation_was_testing_repeated || "";
-          document.querySelector("#reference-to-retest").value = deviation.deviation_reference_to_retest || "";
-          document.querySelector("#investigation-required").value = deviation.deviation_investigation_required || "";
-          document.querySelector("#investigation-assigned-to").value = deviation.deviation_investigation_assigned_to || "";
-          document.querySelector("#investigation-start-date").value = deviation.deviation_investigation_start_date || "";
-          document.querySelector("#investigation-end-date").value = deviation.deviation_investigation_end_date || "";
-          document.querySelector("#root-cause-category").value = deviation.deviation_root_cause_category || "";
-          document.querySelector("#root-cause-description").value = deviation.deviation_root_cause_description || "";
-          document.querySelector("#capa-required").value = deviation.deviation_capa_required || "";
-          document.querySelector("#correction-action").value = deviation.deviation_correction_action || "";
-          document.querySelector("#preventative-action").value = deviation.deviation_preventative_action || "";
-          document.querySelector("#responsible-person").value = deviation.deviation_responsible_person || "";
-          document.querySelector("#target-completion-date").value = deviation.deviation_target_completion_date || "";
-          document.querySelector("#effectiveness-check-required").value = deviation.deviation_effectiveness_check_required || "";
-          document.querySelector("#batch-disposition").value = deviation.deviation_batch_disposition || "";
+          if (!deviation) {
+            console.log("No existing deviation found — new form");
+            return; // stop here, do NOT try to autofill
+          }
+
+          // replace the entire autofill block with this
+            if (!deviation) return;
+
+            // wait for form fields all at once
+            await Promise.all([
+              waitForElement("#PR-number"),
+              waitForElement("#deviation-date"),
+              waitForElement("#deviation-report-date"),
+              waitForElement("#deviation-department"),
+              waitForElement("#deviation-reported-at"),
+              waitForElement("#deviation-type"),
+              waitForElement("#deviation-severity"),
+              waitForElement("#deviation-short-description"),
+              waitForElement("#deviation-long-description"),
+              waitForElement("#deviation-location"),
+              waitForElement("#deviation-sop-number"),
+              waitForElement("#deviation-instrument-id"),
+              waitForElement("#test_name"),
+              waitForElement("#deviation-sample-type"),
+              waitForElement("#deviation-quantity-impacted"),
+              waitForElement("#deviation-batch-released"),
+              waitForElement("#potential-impact-to-product-quality"),
+              waitForElement("#immediate-action-taken"),
+              waitForElement("#date-action-taken"),
+              waitForElement("#deviation-test-performed-by"),
+              waitForElement("#was-testing-repeated"),
+              waitForElement("#reference-to-retest"),
+              waitForElement("#investigation-required"),
+              waitForElement("#investigation-assigned-to"),
+              waitForElement("#investigation-start-date"),
+              waitForElement("#investigation-end-date"),
+              waitForElement("#root-cause-category"),
+              waitForElement("#root-cause-description"),
+              waitForElement("#capa-required"),
+              waitForElement("#correction-action"),
+              waitForElement("#preventative-action"),
+              waitForElement("#responsible-person"),
+              waitForElement("#target-completion-date"),
+              waitForElement("#effectiveness-check-required"),
+              waitForElement("#batch-disposition"),
+            ]);
+
+            // helper — converts bool true/false → "True"/"False" for select options
+            const toSelectBool = (v) => {
+              if (v === true || v === "true" || v === "1" || v === "yes") return "True";
+              if (v === false || v === "false" || v === "0" || v === "no") return "False";
+              return "";
+            };
+
+            // helper — strips time portion for date inputs: "2024-01-15T00:00:00" → "2024-01-15"
+            const toDate = (v) => v ? v.split("T")[0] : "";
+
+            // helper — formats for datetime-local: "2024-01-15T14:30:00" → "2024-01-15T14:30"
+            const toDateTimeLocal = (v) => v ? v.slice(0, 16) : "";
+
+            // text / textarea fields — these work fine with direct assignment
+            document.querySelector("#PR-number").value = deviation.deviation_code || "";
+            document.querySelector("#deviation-reported-at").value = deviation.deviation_reported_at || "";
+            document.querySelector("#deviation-short-description").value = deviation.deviation_short_description || "";
+            document.querySelector("#deviation-long-description").value = deviation.deviation_long_description || "";
+            document.querySelector("#deviation-sop-number").value = deviation.deviation_sop_number || "";
+            document.querySelector("#deviation-instrument-id").value = deviation.deviation_instrument_id || "";
+            document.querySelector("#deviation-quantity-impacted").value = deviation.deviation_quantity_impacted ?? "";
+            document.querySelector("#potential-impact-to-product-quality").value = deviation.potential_impact_to_product_quality || "";
+            document.querySelector("#immediate-action-taken").value = deviation.immediate_action_taken || "";
+            document.querySelector("#deviation-test-performed-by").value = deviation.deviation_test_performed_by || "";
+            document.querySelector("#reference-to-retest").value = deviation.reference_to_retest || "";
+            document.querySelector("#investigation-assigned-to").value = deviation.investigation_assigned_to || "";
+            document.querySelector("#root-cause-description").value = deviation.root_cause_description || "";
+            document.querySelector("#correction-action").value = deviation.correction_action || "";
+            document.querySelector("#preventative-action").value = deviation.preventative_action || "";
+            document.querySelector("#responsible-person").value = deviation.responsible_person || "";
+
+            // date fields — strip the time portion
+            document.querySelector("#date-action-taken").value = toDate(deviation.date_action_taken);
+            document.querySelector("#investigation-start-date").value = toDate(deviation.investigation_start_date);
+            document.querySelector("#investigation-end-date").value = toDate(deviation.investigation_end_date);
+            document.querySelector("#target-completion-date").value = toDate(deviation.target_completion_date);
+
+            // datetime-local fields — keep only up to minutes
+            document.querySelector("#deviation-date").value = toDateTimeLocal(deviation.deviation_date);
+            document.querySelector("#deviation-report-date").value = toDateTimeLocal(deviation.deviation_report_date);
+
+            // select fields — value must exactly match an option
+            document.querySelector("#deviation-department").value = deviation.deviation_department || "";
+            document.querySelector("#deviation-type").value = deviation.deviation_type || "";
+            document.querySelector("#deviation-severity").value = deviation.deviation_severity || "";
+            document.querySelector("#deviation-location").value = deviation.deviation_location || "";
+            document.querySelector("#deviation-sample-type").value = deviation.deviation_sample_type || "";
+            document.querySelector("#root-cause-category").value = deviation.root_cause_category || "";
+            document.querySelector("#batch-disposition").value = deviation.batch_disposition || "";
+
+            // boolean selects — must convert to "True"/"False" string
+            document.querySelector("#deviation-batch-released").value = toSelectBool(deviation.deviation_batch_released);
+            document.querySelector("#was-testing-repeated").value = toSelectBool(deviation.was_testing_repeated);
+            document.querySelector("#investigation-required").value = toSelectBool(deviation.investigation_required);
+            document.querySelector("#capa-required").value = toSelectBool(deviation.capa_required);
+            document.querySelector("#effectiveness-check-required").value = toSelectBool(deviation.effectiveness_check_required);
 
           console.log("Loaded deviation:", deviation);
         } else {
@@ -202,44 +237,84 @@ if (!window.__sampleDeviationInitialized) {
       } catch (err) {
         console.error("Error loading deviation:", err);
       }
-      
-      //Attach close btn listener
-      waitForElement("#deviation-form-close-button").then(closeBtn => {
-        closeBtn.addEventListener("click", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
+    });
 
-          panel.classList.add("hidden");
+    // CLOSE + SUBMIT HANDLER
+    document.addEventListener("click", async (e) => {
+
+      // Close button
+      if (e.target.closest("#deviation-form-close-button")) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.getElementById("sample-deviation-component-deviation-details").classList.add("hidden");
+        return;
+      }
+
+      // Submit button
+      if (e.target.closest("#deviation-form-submit-button")) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        console.log("Submit clicked");
+
+        const sampleValue = document.getElementById("sample_name").value;
+        const testValue = document.getElementById("test_name").value;
+
+        const form = document.getElementById("deviation-form");
+        const data = Object.fromEntries(new FormData(form).entries());
+
+        const submittedBy = localStorage.getItem("username");
+        const role = localStorage.getItem("role");
+        const isManager = role.toLowerCase() === "manager" ? submittedBy : null;
+
+        const toBool = (v) => {
+          if (!v) return false;
+          v = v.toString().toLowerCase();
+          return v === "yes" || v === "true" || v === "1";
+        };
+
+        const response = await fetch("http://localhost:8000/deviation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...data,
+            submitted_by: submittedBy,
+            manager_name: isManager,
+            sample_name: sampleValue,
+            test_name: testValue,
+
+            // FIXED booleans
+            was_testing_repeated: toBool(data["was_testing_repeated"]),
+            deviation_batch_released: toBool(data["deviation_batch_released"]),
+            capa_required: toBool(data["capa_required"]),
+            effectiveness_check_required: toBool(data["effectiveness_check_required"]),
+
+            // FIXED ints
+            deviation_quantity_impacted: data["deviation_quantity_impacted"] === "" ? null : Number(data["deviation_quantity_impacted"]),
+
+            // add these to your special cases in the fetch body
+            investigation_start_date: data["investigation_start_date"] || null,
+            investigation_end_date: data["investigation_end_date"] || null,
+            target_completion_date: data["target_completion_date"] || null,
+          }),
         });
 
-        //Attach submit btn listener
-        waitForElement("#deviation-form-submit-button").then(submitBtn => {
-          submitBtn.addEventListener("click", async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const form = document.getElementById("deviation-form");
-            const data = Object.fromEntries(new FormData(form).entries());
-
-            const response = await fetch("http://localhost:8000/deviation", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(data)
-            });
-
-            if (response.ok) {
-              alert("Deviation Form was Successfully submited")
+        if (response.ok) {
+          alert("Deviation Form was Successfully submitted");
+        } else {
+          let message = "An error occurred.";
+          try {
+            const errorData = await response.json();
+            // after — Pydantic returns detail as an array of error objects
+            if (Array.isArray(errorData.detail)) {
+              message = errorData.detail.map(err => `${err.loc.join(" → ")}: ${err.msg}`).join("\n");
             } else {
-              let message = "An error occurred.";
-              try {
-                const errorData = await response.json();
-                message = errorData.detail || message;
-              } catch { }
-                  alert(message);
+              message = errorData.detail || message;
             }
-          })
-        });
-      });
+          } catch { }
+          alert(message);
+        }
+      }
     });
   });
 }

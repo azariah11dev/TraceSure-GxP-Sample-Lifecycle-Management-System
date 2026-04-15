@@ -50,7 +50,7 @@ function loadComponent(htmlPath, jsPath) {
 async function loadDeviationForm() {
   const container = document.querySelector('#sample-deviation-component-deviation-details');
 
-  const res = await fetch('/navigation/components/deviation/deviation-form.html');
+  const res = await fetch('/navigation/components/create_deviation/deviation-form.html');
   const html = await res.text();
 
   container.innerHTML = html;

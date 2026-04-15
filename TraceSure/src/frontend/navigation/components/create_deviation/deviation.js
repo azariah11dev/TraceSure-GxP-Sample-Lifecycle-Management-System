@@ -162,7 +162,6 @@ if (!window.__sampleDeviationInitialized) {
             if (retestContainer) {
               retestContainer.classList.remove("hidden");
             }
-            return;
           }
 
           // wait for form fields all at once

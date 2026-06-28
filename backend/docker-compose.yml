@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: TraceSureDB_Postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: deep_value
+      POSTGRES_DB: TraceSureDB
+    ports:
+      - "5432:5432"
+    volumes:
+      - TraceSureDB_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    container_name: TraceSure_App
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      HOME: /app
+      DATABASE_URL: postgresql+asyncpg://postgres:deep_value@postgres:5432/TraceSureDB
+      PYTHONPATH: /app/src
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src
+    command: uv run uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  TraceSureDB_pgdata:

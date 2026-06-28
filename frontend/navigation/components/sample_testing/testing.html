@@ -1,0 +1,44 @@
+<div class="sample-testing-component">
+    <div class="sample-testing-component-top-bar">
+        <h2>Sample Testing Dashboard</h2>
+    </div>
+    <div class="sample-testing-component-samples-table">
+        <table id="samples-table">
+            <thead>
+                <tr>
+                    <th>Sample Name</th>
+                    <th>Status</th>
+                    <th>Number of Tests</th>
+                    <th>Number of Completed Tests</th>
+                    <th>Open Deviation</th>
+                    <th>Creation Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div class="sample-testing-component-test-details hidden" id="sample-testing-component-test-details">
+        <h2 id="sample-testing-component-test-details-title"></h2>
+        <table id="samples-tests">
+            <thead>
+                <tr>
+                    <th>Test Name</th>
+                    <th>Test Result</th>
+                    <th>Spec Upper Limit</th>
+                    <th>Spec Lower Limit</th>
+                    <th>Units</th>
+                    <th>Status</th>
+                    <th>Open Deviation</th>
+                    <th>Submit Data</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div style="display: flex; justify-content: center; align-items: center; width:100%;">
+            <button id="close-test-details">
+                Close Test Details
+            </button>
+        </div>
+    </div>
+</div>

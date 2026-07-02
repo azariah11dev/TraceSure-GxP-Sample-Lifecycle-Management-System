@@ -8,6 +8,8 @@ class DeviationSamples(Base):
     __tablename__ = "deviation_samples"
     __table_args__ = {"extend_existing": True}
 
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
     sample_name = Column(String, index=True, nullable=False)
 
     test_name = Column(String, index=True, nullable=False)

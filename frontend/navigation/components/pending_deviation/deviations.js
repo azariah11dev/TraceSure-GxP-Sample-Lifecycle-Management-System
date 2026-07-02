@@ -5,12 +5,6 @@ async function getDeviations() {
             headers: { "Content-Type": "application/json" },
         });
 
-        if (!response.ok) {
-            console.error("API error", response.status, await response.text());
-            renderEmpty();
-            return;
-        }
-
         const data = await response.json();
         console.log("isArray:", Array.isArray(data));
         DeviationList(data);
@@ -150,7 +144,6 @@ if (!window.LoadDeviationDetails) {
 
             const deviation = await res.json();
 
-            // BUG 1 FIX: The original check `if (!deviation) return` abandoned
             // the autofill whenever any field inside the object was falsy.
             // The backend returns a JSON null when no record exists, so the guard
             // only needs to catch that specific case — not all falsy field values.
@@ -198,8 +191,8 @@ if (!window.LoadDeviationDetails) {
             ]);
 
             const toSelectBool = (v) => {
-                if (v === true  || v === "true"  || v === "1" || v === "yes") return "True";
-                if (v === false || v === "false" || v === "0" || v === "no")  return "False";
+                if (v === true || v === "true" || v === "1" || v === "yes") return "True";
+                if (v === false || v === "false" || v === "0" || v === "no") return "False";
                 return "";
             };
 
@@ -207,48 +200,48 @@ if (!window.LoadDeviationDetails) {
             const toDateTimeLocal = (v) => v ? v.slice(0, 16) : "";
 
             // ── Text / textarea fields ────────────────────────────────────
-            document.querySelector("#PR-number").value                            = deviation.deviation_code                        || "";
-            document.querySelector("#deviation-reported-at").value               = deviation.deviation_reported_at                 || "";
-            document.querySelector("#deviation-short-description").value         = deviation.deviation_short_description           || "";
-            document.querySelector("#deviation-long-description").value          = deviation.deviation_long_description            || "";
-            document.querySelector("#deviation-sop-number").value                = deviation.deviation_sop_number                  || "";
-            document.querySelector("#deviation-instrument-id").value             = deviation.deviation_instrument_id               || "";
-            document.querySelector("#deviation-quantity-impacted").value         = deviation.deviation_quantity_impacted           ?? "";
-            document.querySelector("#potential-impact-to-product-quality").value = deviation.potential_impact_to_product_quality   || "";
-            document.querySelector("#immediate-action-taken").value              = deviation.immediate_action_taken                || "";
-            document.querySelector("#deviation-test-performed-by").value         = deviation.deviation_test_performed_by           || "";
-            document.querySelector("#reference-to-retest").value                 = deviation.reference_to_retest                   || "";
-            document.querySelector("#investigation-assigned-to").value           = deviation.investigation_assigned_to             || "";
-            document.querySelector("#root-cause-description").value              = deviation.root_cause_description                || "";
-            document.querySelector("#correction-action").value                   = deviation.correction_action                     || "";
-            document.querySelector("#preventative-action").value                 = deviation.preventative_action                   || "";
-            document.querySelector("#responsible-person").value                  = deviation.responsible_person                    || "";
+            document.querySelector("#PR-number").value = deviation.deviation_code || "";
+            document.querySelector("#deviation-reported-at").value = deviation.deviation_reported_at || "";
+            document.querySelector("#deviation-short-description").value = deviation.deviation_short_description || "";
+            document.querySelector("#deviation-long-description").value = deviation.deviation_long_description || "";
+            document.querySelector("#deviation-sop-number").value = deviation.deviation_sop_number || "";
+            document.querySelector("#deviation-instrument-id").value = deviation.deviation_instrument_id || "";
+            document.querySelector("#deviation-quantity-impacted").value = deviation.deviation_quantity_impacted ?? "";
+            document.querySelector("#potential-impact-to-product-quality").value = deviation.potential_impact_to_product_quality || "";
+            document.querySelector("#immediate-action-taken").value = deviation.immediate_action_taken || "";
+            document.querySelector("#deviation-test-performed-by").value = deviation.deviation_test_performed_by || "";
+            document.querySelector("#reference-to-retest").value = deviation.reference_to_retest || "";
+            document.querySelector("#investigation-assigned-to").value = deviation.investigation_assigned_to || "";
+            document.querySelector("#root-cause-description").value = deviation.root_cause_description || "";
+            document.querySelector("#correction-action").value = deviation.correction_action || "";
+            document.querySelector("#preventative-action").value = deviation.preventative_action || "";
+            document.querySelector("#responsible-person").value = deviation.responsible_person || "";
 
             // ── Date fields ───────────────────────────────────────────────
-            document.querySelector("#date-action-taken").value        = toDate(deviation.date_action_taken);
+            document.querySelector("#date-action-taken").value = toDate(deviation.date_action_taken);
             document.querySelector("#investigation-start-date").value = toDate(deviation.investigation_start_date);
-            document.querySelector("#investigation-end-date").value   = toDate(deviation.investigation_end_date);
-            document.querySelector("#target-completion-date").value   = toDate(deviation.target_completion_date);
+            document.querySelector("#investigation-end-date").value = toDate(deviation.investigation_end_date);
+            document.querySelector("#target-completion-date").value = toDate(deviation.target_completion_date);
 
             // ── Datetime-local fields ─────────────────────────────────────
-            document.querySelector("#deviation-date").value        = toDateTimeLocal(deviation.deviation_date);
+            document.querySelector("#deviation-date").value = toDateTimeLocal(deviation.deviation_date);
             document.querySelector("#deviation-report-date").value = toDateTimeLocal(deviation.deviation_report_date);
 
             // ── Plain select fields ───────────────────────────────────────
-            document.querySelector("#deviation-department").value  = deviation.deviation_department  || "";
-            document.querySelector("#deviation-type").value        = deviation.deviation_type        || "";
-            document.querySelector("#deviation-severity").value    = deviation.deviation_severity    || "";
-            document.querySelector("#deviation-location").value    = deviation.deviation_location    || "";
+            document.querySelector("#deviation-department").value = deviation.deviation_department || "";
+            document.querySelector("#deviation-type").value = deviation.deviation_type || "";
+            document.querySelector("#deviation-severity").value = deviation.deviation_severity || "";
+            document.querySelector("#deviation-location").value = deviation.deviation_location || "";
             document.querySelector("#deviation-sample-type").value = deviation.deviation_sample_type || "";
-            document.querySelector("#root-cause-category").value   = deviation.root_cause_category   || "";
-            document.querySelector("#batch-disposition").value     = deviation.batch_disposition     || "";
+            document.querySelector("#root-cause-category").value = deviation.root_cause_category || "";
+            document.querySelector("#batch-disposition").value = deviation.batch_disposition || "";
 
             // ── Boolean select fields ─────────────────────────────────────
-            document.querySelector("#deviation-batch-released").value        = toSelectBool(deviation.deviation_batch_released);
-            document.querySelector("#was-testing-repeated").value            = toSelectBool(deviation.was_testing_repeated);
-            document.querySelector("#investigation-required").value          = toSelectBool(deviation.investigation_required);
-            document.querySelector("#capa-required").value                   = toSelectBool(deviation.capa_required);
-            document.querySelector("#effectiveness-check-required").value    = toSelectBool(deviation.effectiveness_check_required);
+            document.querySelector("#deviation-batch-released").value = toSelectBool(deviation.deviation_batch_released);
+            document.querySelector("#was-testing-repeated").value = toSelectBool(deviation.was_testing_repeated);
+            document.querySelector("#investigation-required").value = toSelectBool(deviation.investigation_required);
+            document.querySelector("#capa-required").value = toSelectBool(deviation.capa_required);
+            document.querySelector("#effectiveness-check-required").value = toSelectBool(deviation.effectiveness_check_required);
 
             console.log("Loaded deviation:", deviation);
 
@@ -259,64 +252,54 @@ if (!window.LoadDeviationDetails) {
 
     document.addEventListener("click", async (e) => {
         const approveBtn = e.target.closest(".approve-deviation-btn");
-        const rejectBtn  = e.target.closest(".reject-deviation-btn");
+        const rejectBtn = e.target.closest(".reject-deviation-btn");
 
         if (!approveBtn && !rejectBtn) return;
 
         const isApprove = !!approveBtn;
-        const isReject  = !!rejectBtn;
+        const isReject = !!rejectBtn;
 
         const approverName = localStorage.getItem("username");
         const approverRole = localStorage.getItem("role");
 
         let approvalStatus = null;
-        let formStatus     = null;
+        let formStatus = null;
 
         if (isApprove) {
             approvalStatus = true;
-            formStatus     = "approved";
+            formStatus = "approved";
         } else if (isReject) {
             approvalStatus = false;
-            formStatus     = "draft";
+            formStatus = "draft";
         }
 
-        const btn            = approveBtn || rejectBtn;
+        const btn = approveBtn || rejectBtn;
         const deviation_code = btn.dataset.deviationCode;
         console.log("Deviation code:", deviation_code);
 
-        const response = await fetch(`http://localhost:8000/update_deviation_form/validate`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                deviation_code,
-                approver_name:   approverName,
-                approver_role:   approverRole,
-                approval_status: approvalStatus,
-                form_status:     formStatus,
-            })
-        });
+        try {
+            const response = await fetch(`http://localhost:8000/update_deviation_form/validate`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    deviation_code,
+                    approver_name: approverName,
+                    approver_role: approverRole,
+                    approval_status: approvalStatus,
+                    form_status: formStatus,
+                })
+            });
 
-        if (response.ok) {
-            alert(isApprove ? "Deviation approved successfully" : "Deviation rejected successfully");
-            setTimeout(() => location.reload(), 300);
-        } else {
-            // `message` was used in alert(message) without ever being
-            // declared. In strict mode this is a ReferenceError; in sloppy mode it
-            // creates an implicit global. Either way the catch block also references
-            // the same undeclared variable, so the alert never fires on a failed
-            // approve/reject. Declare it with `let` before the try block.
-            let message = "An error occurred.";
-            try {
-                const errorData = await response.json();
-                if (Array.isArray(errorData.detail)) {
-                    message = errorData.detail
-                        .map(err => `${err.loc.join(" → ")}: ${err.msg}`)
-                        .join("\n");
-                } else {
-                    message = errorData.detail || message;
-                }
-            } catch { /* suppress JSON parse errors on non-JSON error bodies */ }
-            alert(message);
+            if (response.ok) {
+                alert(isApprove ? "Deviation approved successfully" : "Deviation rejected successfully");
+                setTimeout(() => location.reload(), 300);
+            } else {
+                const errText = await response.text();
+                console.error("Server error:", errText);
+                alert(errText);
+            }
+        } catch (error) {
+            console.error("Server error:", error);
         }
     });
 }

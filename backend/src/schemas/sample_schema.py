@@ -91,7 +91,14 @@ class DeviationTesting(BaseModel):
     deviation_code: str
     test_performer: str
     previous_performer: str
+    old_result: float
     new_result: float
-    spec_range_upper_limit: str
-    spec_range_lower_limit: str
-    unit: str
+    spec_range_upper_limit: float | None
+    spec_range_lower_limit: float | None
+    unit: str | None
+
+class ReviewTestResults(BaseModel):
+    sample_name: str
+    test_name: str
+    reviewed_by: str
+    reviewed_status: bool

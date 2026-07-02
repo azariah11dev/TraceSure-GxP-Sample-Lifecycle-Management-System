@@ -6,13 +6,8 @@ async function loadActiveSamples() {
       headers: { "Content-Type": "application/json" }
     });
 
-    if (!res.ok) {
-      console.error("API error", res.status, await res.text());
-      renderEmpty();
-      return;
-    }
-
     const samples = await res.json();
+    console.log("Fetched samples:", samples);
     renderSamples(samples);
   } catch (err) {
     console.error("Fetch error", err);
@@ -40,9 +35,13 @@ function renderSamples(samples = []) {
       <td>${escapeHtml(s.status || 'Not Started')}</td>
       <td>${Number(s.pending_tests) || 0}</td>
       <td>${Number(s.completed_tests) || 0}</td>
-      <td>${Number(s.open_deviations) || 0}</td>
+      <td>${Boolean(s.open_deviations)}</td>
       <td>${escapeHtml(s.creation_date || '')}</td>
-      <td class="view-tests-container"><button data-sample="${escapeHtml(s.sample_name)}" class="view-tests">View Tests</button></td>
+      <td class="view-tests-container">
+        <button data-sample="${escapeHtml(s.sample_name)}" class="view-tests">
+          View Tests
+        </button>
+      </td>
     `;
     tbody.appendChild(row);
   });
@@ -88,62 +87,62 @@ if (!window.__sampleTestingInitialized) {
 
   let currentSampleName = null;
 
-    document.addEventListener("click", async (e) => {
-      if (!e.target.classList.contains("view-tests")) return;
+  document.addEventListener("click", async (e) => {
+    if (!e.target.classList.contains("view-tests")) return;
 
-      const sampleName = e.target.dataset.sample;
-      currentSampleName = sampleName;
+    const sampleName = e.target.dataset.sample;
+    currentSampleName = sampleName;
 
-      await loadTestsForSample(sampleName);
-    });
+    await loadTestsForSample(sampleName);
+  });
 
-    // Close button (attach ONCE)
-    document.getElementById("close-test-details").addEventListener("click", () => {
-      document.getElementById("sample-testing-component-test-details").classList.add("hidden");
-    });
+  // Close button (attach ONCE)
+  document.getElementById("close-test-details").addEventListener("click", () => {
+    document.getElementById("sample-testing-component-test-details").classList.add("hidden");
+  });
 
-    // Modify button (delegated)
-    document.addEventListener("click", (e) => {
-      if (!e.target.classList.contains("modify-test-result")) return;
+  // Modify button (delegated)
+  document.addEventListener("click", (e) => {
+    if (!e.target.classList.contains("modify-test-result")) return;
 
-      const row = e.target.closest("tr");
-      const input = row.querySelector(".test-result-input");
-      const submitBtn = row.querySelector(".submit-test-result");
+    const row = e.target.closest("tr");
+    const input = row.querySelector(".test-result-input");
+    const submitBtn = row.querySelector(".submit-test-result");
 
-      input.disabled = false;
-      submitBtn.disabled = false;
+    input.disabled = false;
+    submitBtn.disabled = false;
 
-      e.target.hidden = true;
-    });
+    e.target.hidden = true;
+  });
 
-    async function loadTestsForSample(sampleName) {
-      const panel = document.getElementById("sample-testing-component-test-details");
-      const title = document.getElementById("sample-testing-component-test-details-title");
-      const tbody = document.querySelector("#samples-tests tbody");
+  async function loadTestsForSample(sampleName) {
+    const panel = document.getElementById("sample-testing-component-test-details");
+    const title = document.getElementById("sample-testing-component-test-details-title");
+    const tbody = document.querySelector("#samples-tests tbody");
 
-      // Show panel
-      panel.classList.remove("hidden");
-      // Set title
-      title.textContent = `Tests for: ${sampleName}`;
-      // Clear old rows
-      tbody.innerHTML = "";
+    // Show panel
+    panel.classList.remove("hidden");
+    // Set title
+    title.textContent = `Tests for: ${sampleName}`;
+    // Clear old rows
+    tbody.innerHTML = "";
 
-      // Fetch tests
-      const response = await fetch(`http://localhost:8000/display_tests/${sampleName}`);
-      const tests = await response.json();
+    // Fetch tests
+    const response = await fetch(`http://localhost:8000/display_tests/${sampleName}`);
+    const tests = await response.json();
 
-      // Render rows
-      tests.forEach(t => {
-        const row = document.createElement("tr");
-        const isCompleted = t.result !== null && t.result !== undefined && t.result !== "";
+    // Render rows
+    tests.forEach(t => {
+      const row = document.createElement("tr");
+      const isCompleted = t.result !== null && t.result !== undefined && t.result !== "";
 
-        // Optional: color-code status
-        let statusClass = "";
-        if (t.status === "pass") statusClass = "status-pass";
-        if (t.status === "out_of_trend") statusClass = "status-oot";
-        if (t.status === "out_of_specification") statusClass = "status-oos";
+      // Optional: color-code status
+      let statusClass = "";
+      if (t.status === "pass") statusClass = "status-pass";
+      if (t.status === "out_of_trend") statusClass = "status-oot";
+      if (t.status === "out_of_specification") statusClass = "status-oos";
 
-        row.innerHTML = `
+      row.innerHTML = `
               <td>${t.test_name}</td>
               <td>
                   <input type="number"
@@ -171,42 +170,43 @@ if (!window.__sampleTestingInitialized) {
                   </button>
               </td>
           `;
-        tbody.appendChild(row);
-      });
+      tbody.appendChild(row);
+    });
+  }
+
+  document.addEventListener("click", async (e) => {
+    if (!e.target.classList.contains("submit-test-result")) return;
+
+    const row = e.target.closest("tr");
+    const input = row.querySelector(".test-result-input");
+    const original = input.dataset.original ?? "";
+    const updated = input.value.trim();
+
+    // Value cannot be empty
+    if (updated === "") {
+      alert("Result value cannot be empty.");
+      return;
     }
 
-    document.addEventListener("click", async (e) => {
-      if (!e.target.classList.contains("submit-test-result")) return;
+    // If unchanged, do nothing
+    if (updated === original) {
+      alert("No changes detected.");
+      return;
+    }
 
-      const row = e.target.closest("tr");
-      const input = row.querySelector(".test-result-input");
-      const original = input.dataset.original ?? "";
-      const updated = input.value.trim();
-
-      // Value cannot be empty
-      if (updated === "") {
-        alert("Result value cannot be empty.");
+    // If this was a modification, require justification
+    let explanation = null;
+    if (original !== "" && updated !== original) {
+      explanation = prompt("Provide justification for modifying this result:");
+      if (!explanation) {
+        alert("Modification cancelled — justification required.");
+        input.value = original;
+        input.disabled = true;
         return;
       }
+    }
 
-      // If unchanged, do nothing
-      if (updated === original) {
-        alert("No changes detected.");
-        return;
-      }
-
-      // If this was a modification, require justification
-      let explanation = null;
-      if (original !== "" && updated !== original) {
-        explanation = prompt("Provide justification for modifying this result:");
-        if (!explanation) {
-          alert("Modification cancelled — justification required.");
-          input.value = original;
-          input.disabled = true;
-          return;
-        }
-      }
-
+    try {
       const response = await fetch("http://localhost:8000/update_test_result/log_results", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -226,12 +226,12 @@ if (!window.__sampleTestingInitialized) {
         await loadTestsForSample(currentSampleName);
 
       } else {
-        let message = "An error occurred.";
-        try {
-          const errorData = await response.json();
-          message = errorData.detail || message;
-        } catch { }
-        alert(message);
+        const errText = await res.text();
+        console.error("Server error:", errText);
+        alert(errText);
       }
-    });
+    } catch (error) {
+      console.error("Server error:", error);
+    }
+  });
 }

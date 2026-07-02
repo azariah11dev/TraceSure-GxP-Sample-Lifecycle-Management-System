@@ -57,7 +57,8 @@
 }
 .view-tests-deviations,
 .retest-sample-btn,
-.submit-deviation-results {
+.submit-deviation-results,
+#close-deviation-test-details {
     background-color: #00004d;
     color: #ffffff;
     border: none;
@@ -67,7 +68,8 @@
 }
 .view-tests-deviations:hover,
 .retest-sample-btn:hover,
-.submit-deviation-results:hover {
+.submit-deviation-results:hover,
+#close-deviation-test-details:hover {
     background-color: #000066;
     transform: scale(1.05);
 }

@@ -60,17 +60,27 @@ waitForElement("#sample-creation-component-create-samples").then(createBtn => {
             return;
         }
 
-        const response = await fetch("http://localhost:8000/sample/create_sample", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                sample_name,
-                tests: selected_tests.map(t => t.trim()),
-                created_by: name
-            })
-        });
+        try {
+            const response = await fetch("http://localhost:8000/sample/create_sample", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    sample_name,
+                    tests: selected_tests.map(t => t.trim()),
+                    created_by: name
+                })
+            });
 
-        alert(response.ok ? "Sample created successfully!" : "Failed to create sample.");
+            if (response.ok) {
+                alert("Sample created successfully!");
+            } else {
+                const errText = await response.text();
+                console.error("Server error:", errText);
+                alert(errText);
+            }
+        } catch (error) {
+            console.error("Server error:", error);
+        }
     });
 
     // SEARCH SAMPLE → SHOW ADDITIONAL TESTS FORM
@@ -116,21 +126,22 @@ waitForElement("#sample-creation-component-create-samples").then(createBtn => {
             return;
         }
 
-        const response = await fetch("http://localhost:8000/sample/add_tests", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sample_name, tests: new_selected_tests.map(t => t.trim()), created_by: name })
-        });
+        try {
+            const response = await fetch("http://localhost:8000/sample/add_tests", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sample_name, tests: new_selected_tests.map(t => t.trim()), created_by: name })
+            });
 
-        if (response.ok) {
-            alert("Additional tests added successfully!");
-        } else {
-            let message = "An error occurred.";
-            try {
-                const errorData = await response.json();
-                message = errorData.detail || message;
-            } catch (_) { }
-            alert(message);
+            if (response.ok) {
+                alert("Additional tests added successfully!");
+            } else {
+                const errText = await res.text();
+                console.error("Server error:", errText);
+                alert(errText);
+            }
+        } catch (error) {
+            console.error("Server error:", error);
         }
     });
 });

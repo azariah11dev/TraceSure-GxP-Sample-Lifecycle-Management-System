@@ -6,7 +6,7 @@ async function loadActiveSamples() {
     });
 
     if (!res.ok) {
-      console.error("API error", res.status, await res.text());
+      console.error("API error", res.status);
       renderEmpty();
       return;
     }
@@ -378,7 +378,7 @@ if (!window.__retestInitialized) {
       );
 
       if (!res.ok) {
-        console.error("API error", res.status, await res.text());
+        console.error("API error", res.status);
         return;
       }
 
@@ -447,6 +447,13 @@ if (!window.__submitDeviationInitialized) {
       alert(message);
     }
   });
+
+  document.addEventListener("click", (e) => {
+  if (e.target.id !== "close-deviation-test-details") return;
+
+  document.getElementById("deviation-retest-form").classList.add("hidden");
+});
+
 }
 
 async function renderSamples(samples) {
@@ -492,4 +499,3 @@ async function renderSamples(samples) {
     tbody.appendChild(row);
   });
 }
-

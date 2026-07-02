@@ -9,6 +9,7 @@ from endpoints.post_endpoints.deviation_form import sample_deviation_router
 from endpoints.put_endpoints.update_sample_test import update_sample_test_router
 from endpoints.put_endpoints.role_assignment import role_assign_router
 from endpoints.put_endpoints.update_deviation_form import update_deviation_form_router
+from endpoints.put_endpoints.review_tests import review_test_router
 
 from endpoints.get_endpoints.add_tests import add_test_router
 from endpoints.get_endpoints.display_tests import display_tests_router
@@ -48,10 +49,13 @@ def health_check():
 
 app.include_router(user_auth_router)
 app.include_router(sample_test_router)
-app.include_router(add_test_router)
+app.include_router(sample_deviation_router)
+
 app.include_router(update_sample_test_router)
 app.include_router(role_assign_router)
-app.include_router(display_tests_router)
-app.include_router(sample_deviation_router)
-app.include_router(deviation_form_router)
 app.include_router(update_deviation_form_router)
+app.include_router(review_test_router)
+
+app.include_router(add_test_router)
+app.include_router(display_tests_router)
+app.include_router(deviation_form_router)

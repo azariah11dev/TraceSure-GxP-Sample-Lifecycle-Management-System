@@ -86,11 +86,11 @@ waitForElement('#sample-review-table tbody').then(() => {
 
 // ==========================View Tests Details Panel Logic==========================
 
-if (!window.__sampleReviewInitialized) {
-    window.__sampleReviewInitialized = true;
+if (document.querySelector(".sample-review-component")) {
+    initializeSampleReview();
+}
 
-    let currentSampleName = null;
-
+async function initializeSampleReview() {
     document.addEventListener("click", async (e) => {
         if (!e.target.closest(".view-tests")) return;
 
@@ -99,15 +99,20 @@ if (!window.__sampleReviewInitialized) {
     });
 
     // Close button (attach ONCE)
-    document.getElementById("close-test-review-details").addEventListener("click", () => {
-        document.getElementById("sample-review-component-test-details").classList.add("hidden");
+    document.addEventListener("click", (e) => {
+        if (e.target.id === "close-test-review-details") {
+            document.querySelector(".sample-review-component-test-details").classList.add("hidden");
+        }
     });
 }
 
 async function loadReviewForSample(sampleName) {
-    const panel = document.getElementById("sample-review-component-test-details");
+    const panel = document.querySelector(".sample-review-component-test-details");
+    if (!panel) return;
+
     const title = document.getElementById("sample-review-component-test-details-title");
     const tbody = document.querySelector("#sample-review tbody");
+    if (!title || !tbody) return; 
 
     // Show panel
     panel.classList.remove("hidden");
@@ -202,7 +207,6 @@ document.addEventListener("click", async (e) => {
         }
 
     } catch (error) {
-        const errText = await res.text();
-            console.error("Server error:", errText);
+        console.error("Server error:", error);
     }
 });

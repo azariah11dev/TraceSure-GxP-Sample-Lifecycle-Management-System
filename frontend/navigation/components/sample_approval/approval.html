@@ -1,0 +1,51 @@
+<div class="sample-approval-component">
+    <h1 class="sample-approval-component-header">Sample Review</h1>
+    <div class="sample-approval-component-table">
+        <table id="sample-approval-table">
+            <thead>
+                <tr>
+                    <th>Sample Name</th>
+                    <th>Status</th>
+                    <th>Performed By</th>
+                    <th>Number of Tests</th>
+                    <th>Creation Date</th>
+                    <th>Completion Date</th>
+                    <th>Total Days</th>
+                    <th>Deviations</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div class="sample-approval-component-test-details hidden" id="sample-approval-component-test-details">
+        <h2 id="sample-approval-component-test-details-title" style="margin-bottom: 20px;"></h2>
+        <div class="sample-approval-component-table">
+            <table id="sample-approval-test-table">
+                <thead>
+                    <tr>
+                        <th>Test Name</th>
+                        <th>Performed By</th>
+                        <th>Test Result</th>
+                        <th>Spec Upper Limit</th>
+                        <th>Spec Lower Limit</th>
+                        <th>Units</th>
+                        <th>Status</th>
+                        <th>Reviewed By</th>
+                        <th>Deviation</th>
+                        <th>Deviation Form</th>
+                        <th>Approval Status</th>
+                        <th>Submit</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div class="sample-deviations-component-details hidden" id="sample-deviations-component-details"></div>
+            <div style="display: flex; justify-content: center; align-items: center; width:100%; margin-top: 20px;">
+                <button id="close-approval-review-details">
+                    Close Test Details
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

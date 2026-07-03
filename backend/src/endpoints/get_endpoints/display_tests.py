@@ -53,6 +53,78 @@ async def get_deviations(session: AsyncSession = Depends(get_async_session)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@display_tests_router.get("/management_approval")
+async def get_management_approval(session: AsyncSession = Depends(get_async_session)):
+    try:
+        query = (
+            select(Samples)
+            .where(Samples.reviewed_status == True)
+            .where(Samples.manager_approval == False)
+        )
+        rows = (await session.execute(query)).scalars().all()
+
+        if not rows:
+            return []
+
+        samples = {}
+
+        for row in rows:
+            name = row.sample_name
+
+            if name not in samples:
+                samples[name] = {
+                    "sample_name": name,
+                    "status": row.status,
+                    "performed_by": row.performed_by,
+                    "total_tests": 0,
+                    "creation_date": row.created_date,
+                    "completed_date": row.test_completed_date,
+                    "deviations": 0,
+                }
+
+            # increment test count
+            samples[name]["total_tests"] += 1
+
+            # track earliest creation date
+            if row.created_date:
+                if samples[name]["creation_date"] is None or row.created_date < samples[name]["creation_date"]:
+                    samples[name]["creation_date"] = row.created_date
+
+            # track latest completed date
+            if row.test_completed_date:
+                if samples[name]["completed_date"] is None or row.test_completed_date > samples[name]["completed_date"]:
+                    samples[name]["completed_date"] = row.test_completed_date
+
+            # count deviations
+            if row.status == "out_of_specification":
+                samples[name]["deviations"] += 1
+
+        # Final formatting
+        output = []
+        for name, s in samples.items():
+            total_days = None
+            if s["creation_date"] and s["completed_date"]:
+                total_days = (s["completed_date"] - s["creation_date"]).days
+
+            output.append({
+                "sample_name": name,
+                "status": s["status"],
+                "performed_by": s["performed_by"],
+                "total_tests": s["total_tests"],
+                "creation_date": s["creation_date"].strftime("%d-%B-%Y") if s["creation_date"] else None,
+                "completed_date": s["completed_date"].strftime("%d-%B-%Y") if s["completed_date"] else None,
+                "total_days": total_days,
+                "deviations": s["deviations"],
+            })
+
+        return output
+
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
 @display_tests_router.get("/{sample_name}")
 async def get_tests_for_sample(sample_name: str, session: AsyncSession = Depends(get_async_session)):
     try:
@@ -83,26 +155,32 @@ async def get_tests_for_sample(sample_name: str, session: AsyncSession = Depends
 @display_tests_router.get("")
 async def display_tests(session: AsyncSession = Depends(get_async_session)):
     try:
-        # Fetch all tests that are NOT approved
         query = select(Samples).where(Samples.manager_approval == False)
         rows = (await session.execute(query)).scalars().all()
 
         if not rows:
-            return []   # return empty list instead of 404
+            return []
 
         samples = {}
+
         for row in rows:
             name = row.sample_name
+
             if name not in samples:
                 samples[name] = {
                     "sample_name": name,
-                    "creation_date": row.created_date.strftime("%d-%B-%Y"),
+                    "creation_date": row.created_date,   # store datetime
                     "pending_tests": 0,
                     "completed_tests": 0,
                     "open_deviations": 0,
                     "status": row.status,
                 }
+
             samples[name]["pending_tests"] += 1
+
+            # keep earliest creation date
+            if row.created_date and row.created_date < samples[name]["creation_date"]:
+                samples[name]["creation_date"] = row.created_date
 
             if row.test_completed_date is not None:
                 samples[name]["completed_tests"] += 1
@@ -110,9 +188,13 @@ async def display_tests(session: AsyncSession = Depends(get_async_session)):
             if row.status == "out_of_specification":
                 samples[name]["open_deviations"] += 1
 
-        # Convert dict → list for frontend
-        return list(samples.values())
-    
+        # format dates AFTER grouping
+        result = list(samples.values())
+        for s in result:
+            s["creation_date"] = s["creation_date"].strftime("%d-%B-%Y")
+
+        return result
+
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))

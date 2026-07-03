@@ -82,23 +82,28 @@ waitForElement('#samples-table tbody').then(() => {
 
 // ==========================View Tests Details Panel Logic==========================
 
-if (!window.__sampleTestingInitialized) {
-  window.__sampleTestingInitialized = true;
+if (document.querySelector(".sample-testing-component")) {
+    initializeSampleTesting();
+}
+
+async function initializeSampleTesting() {
 
   let currentSampleName = null;
 
   document.addEventListener("click", async (e) => {
-    if (!e.target.classList.contains("view-tests")) return;
+    const btn = e.target.closest('button.view-tests');
+    if (!btn) return;
 
-    const sampleName = e.target.dataset.sample;
-    currentSampleName = sampleName;
+    const sampleName = btn.dataset.sample;
 
     await loadTestsForSample(sampleName);
   });
 
   // Close button (attach ONCE)
-  document.getElementById("close-test-details").addEventListener("click", () => {
-    document.getElementById("sample-testing-component-test-details").classList.add("hidden");
+  document.addEventListener("click", (e) => {
+    if (e.target.id === "close-test-details") {
+      document.querySelector(".sample-testing-component-test-details").classList.add("hidden");
+    }
   });
 
   // Modify button (delegated)
@@ -116,9 +121,12 @@ if (!window.__sampleTestingInitialized) {
   });
 
   async function loadTestsForSample(sampleName) {
-    const panel = document.getElementById("sample-testing-component-test-details");
+    const panel = document.querySelector(".sample-testing-component-test-details");
+    if (!panel) return;
+
     const title = document.getElementById("sample-testing-component-test-details-title");
     const tbody = document.querySelector("#samples-tests tbody");
+    if (!title || !tbody) return; 
 
     // Show panel
     panel.classList.remove("hidden");
@@ -226,7 +234,7 @@ if (!window.__sampleTestingInitialized) {
         await loadTestsForSample(currentSampleName);
 
       } else {
-        const errText = await res.text();
+        const errText = await response.text();
         console.error("Server error:", errText);
         alert(errText);
       }

@@ -108,8 +108,13 @@ waitForElement('#samples-deviation-table tbody').then(() => {
 
 // ==========================View Deviation Details Panel Logic==========================
 
-if (!window.__sampleDeviationInitialized) {
-  window.__sampleDeviationInitialized = true;
+if (document.querySelector(".sample-deviation-component")) {
+    sampleDeviationInitialized();
+    submitDeviationInitialized();
+    retestInitialized();
+}
+
+async function sampleDeviationInitialized() {
 
   waitForElement("#sample-deviation-component-deviation-details").then(() => {
 
@@ -362,8 +367,7 @@ if (!window.__sampleDeviationInitialized) {
 
 // ==========================Retest Panel Logic==========================
 
-if (!window.__retestInitialized) {
-  window.__retestInitialized = true;
+async function retestInitialized() {
 
   document.addEventListener("click", async (e) => {
     const retestBtn = e.target.closest(".retest-sample-btn");
@@ -393,8 +397,7 @@ if (!window.__retestInitialized) {
   });
 }
 
-if (!window.__submitDeviationInitialized) {
-  window.__submitDeviationInitialized = true;
+async function submitDeviationInitialized() {
 
   document.addEventListener("click", async (e) => {
     if (!e.target.classList.contains("submit-deviation-results")) return;

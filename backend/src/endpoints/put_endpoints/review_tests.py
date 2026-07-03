@@ -20,7 +20,6 @@ async def technician_review_test(
             select(Samples)
             .where(Samples.sample_name == data.sample_name)
             .where(Samples.test_name == data.test_name)
-            .where(Samples.status == "pass")
             .where(Samples.reviewed_status == False)
         )
 

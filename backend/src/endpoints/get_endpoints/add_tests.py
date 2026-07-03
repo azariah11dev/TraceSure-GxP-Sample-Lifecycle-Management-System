@@ -14,8 +14,8 @@ async def review_test(session: AsyncSession = Depends(get_async_session)):
     try:
         query = (
             select(Samples)
-            .where(Samples.status == "pass")
             .where(Samples.reviewed_status == False)
+            .where(Samples.test_completed_date.isnot(None))
         )
 
         result = await session.execute(query)
@@ -33,7 +33,7 @@ async def review_test(session: AsyncSession = Depends(get_async_session)):
                     "status": r.status,
                     "performed_by": r.performed_by,
                     "open_deviation": False,
-                    "created_date": r.created_date.strftime("%d-%B-%Y") if r.created_date else None,
+                    "created_date": r.created_date,
                     "total_tests": 0
                 }
 
@@ -43,8 +43,16 @@ async def review_test(session: AsyncSession = Depends(get_async_session)):
             # if ANY test is out of spec → open deviation
             if r.status == "out_of_specification":
                 samples[r.sample_name]["open_deviation"] = True
+            
+            if r.created_date and r.created_date < samples[r.sample_name]["created_date"]:
+                samples[r.sample_name]["created_date"] = r.created_date
+        
+        # format dates AFTER grouping
+        result = list(samples.values())
+        for s in result:
+            s["created_date"] = s["created_date"].strftime("%d-%B-%Y") if s["created_date"] else None
 
-        return list(samples.values())
+        return result
 
     except Exception as e:
         print(f"Error: {e}")

@@ -9,7 +9,7 @@ from services.dependencies.jwt_dependency import get_current_user
 
 role_assign_router = APIRouter(prefix="/role_assign", tags=["role_assign"])
 
-@role_assign_router.post("/assign_role")
+@role_assign_router.put("/assign_role")
 async def assign_role(
                       username: str, 
                       role: str, 
@@ -38,7 +38,10 @@ async def assign_role(
         return {
             "status": "ok", 
             "message": f"Role assigned to user {username}."
-            }
+        }
+    
+    except HTTPException:
+        raise
     
     except Exception as e:
         print(f"Error: {e}")

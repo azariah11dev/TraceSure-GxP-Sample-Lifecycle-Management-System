@@ -1,24 +1,19 @@
 // dashboard-main.js
 
-async function initDashboard() {
+async function initUserShell() {
   const name = localStorage.getItem("username");
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 
-  // Redirect if not logged in
   if (!name || !token) {
     window.location.href = "../index.html";
     return;
   }
 
-  // Wait for the top-bar username element to exist in the injected HTML
   await waitForElement('#container-1-top-bar-user-name');
-
-  // Write username into UI
   const el = document.getElementById("container-1-top-bar-user-name");
   if (el) el.textContent = name;
 
-  // Logout logic (guard for missing element)
   const logout = document.getElementById("container-1-top-bar-logout");
   if (logout) {
     logout.addEventListener("click", () => {
@@ -29,15 +24,14 @@ async function initDashboard() {
     });
   }
 
-  // Role based dashboard display (guard role and elements)
   const permissions = {
-    Admin: ["create", "perform", "review", "approve", "deviation", "release", "historical", "pending-deviations"],
+    Admin: ["create", "perform", "review", "approve", "deviation", "release", "historical", "pending-deviations", "role-assignment"],
     Technician: ["create", "perform", "review", "historical"],
     Manager: ["create", "approve", "deviation", "historical", "pending-deviations"],
     Supervisor: ["create", "perform", "review", "deviation", "historical"],
     QA: ["deviation", "release", "historical"]
   };
-  const allItems = ["create", "perform", "review", "approve", "deviation", "release", "historical", "pending-deviations"];
+  const allItems = ["create", "perform", "review", "approve", "deviation", "release", "historical", "pending-deviations", "role-assignment"];
 
   if (role && permissions[role]) {
     allItems.forEach(item => {
@@ -47,7 +41,6 @@ async function initDashboard() {
       }
     });
   } else {
-    // If role missing or unknown, hide everything safe default
     allItems.forEach(item => {
       const elItem = document.getElementById(item);
       if (elItem) elItem.style.display = "none";
@@ -55,8 +48,7 @@ async function initDashboard() {
     console.warn("Unknown or missing role:", role);
   }
 
-  // Role popup and icon
-  await waitForElement('#container-1-name-logo'); // ensure icon exists
+  await waitForElement('#container-1-name-logo');
   const popup = document.getElementById("container-1-role-popup");
   const icon = document.getElementById("container-1-name-logo");
   if (popup && icon) {
@@ -68,17 +60,109 @@ async function initDashboard() {
     console.error("Popup or icon element not found");
   }
 
-  // Home navigation (guard element)
   const home_dashboard_link = document.getElementById("home-logo-dashboard");
   if (home_dashboard_link) {
     home_dashboard_link.addEventListener("click", () => {
       loadComponent(
-        "/navigation/components/dashboard-component.html",
-        "/scripts/dashboard/components/dashboard-component.js"
+        "/navigation/components/dashboard/dashboard.html",
+        "/scripts/dashboard/dashboard-main.js"
       );
     });
   }
 }
 
-// Run immediately when the component script is injected
-initDashboard();
+// Run once when this component script is injected
+initUserShell();
+
+async function fetchSamples() {
+    try {
+        const res = await fetch("http://localhost:8000/display_tests/dashboard");
+        return await res.json();
+    } catch (err) {
+        console.error("Failed to fetch samples:", err);
+        return [];
+    }
+}
+
+function updateCards(samples) {
+    const total = samples.length;
+    const released = samples.filter(s => s.QA_approval === true).length;
+    const oos = samples.filter(s => s.status === "out_of_specification").length;
+    const pendingManager = samples.filter(s => s.reviewed_status === true && s.manager_approval === false).length;
+    const pendingQA = samples.filter(s => s.manager_approval === true && s.QA_approval === false).length;
+
+    document.getElementById("total-samples").textContent = total;
+    document.getElementById("released-samples").textContent = released;
+    document.getElementById("oos-samples").textContent = oos;
+    document.getElementById("pending-manager").textContent = pendingManager;
+    document.getElementById("pending-qa").textContent = pendingQA;
+}
+
+let statusChartInstance = null;
+let approvalChartInstance = null;
+
+function renderStatusChart(samples) {
+  const ctx = document.getElementById("statusChart");
+    if (!ctx) {
+        console.error("renderStatusChart: #statusChart canvas not found in DOM");
+        return;
+    }
+
+    if (statusChartInstance) statusChartInstance.destroy();
+
+    const statuses = ["out_of_trend", "out_of_specification", "pass"];
+    const counts = statuses.map(status => samples.filter(s => s.status === status).length);
+
+    statusChartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: ["Pass", "Out of Spec", "Out of Trend"],
+            datasets: [{
+                label: "Count",
+                data: counts,
+                backgroundColor: ["#22c55e", "#ef4444", "#f97316"]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+
+function renderApprovalChart(samples) {
+    if (approvalChartInstance) approvalChartInstance.destroy();
+    const ctx = document.getElementById("approvalChart");
+
+    const managerApproved = samples.filter(s => s.manager_approval === true).length;
+    const managerPending = samples.filter(s => s.manager_approval === false).length;
+    const qaApproved = samples.filter(s => s.QA_approval === true).length;
+    const qaPending = samples.filter(s => s.QA_approval === false).length;
+
+    approvalChartInstance = new Chart(ctx, {
+        type: "pie",
+        data: {
+            labels: ["Manager Approved", "Manager Pending", "QA Approved", "QA Pending"],
+            datasets: [{
+                data: [managerApproved, managerPending, qaApproved, qaPending],
+                backgroundColor: ["#22c55e", "#ef4444", "#3b82f6", "#f97316"]
+            }]
+        }
+    });
+}
+
+async function initDashboard() {
+    await waitForElement('#statusChart');
+    await waitForElement('#approvalChart');
+
+    const samples = await fetchSamples();
+    updateCards(samples);
+    renderStatusChart(samples);
+    renderApprovalChart(samples);
+}
+
+// Run once when this component script is injected
+if (document.querySelector(".dashboard") && !document.body.dataset.dashboardInit) {
+    document.body.dataset.dashboardInit = "true";
+    initDashboard();
+}

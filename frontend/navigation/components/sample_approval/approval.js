@@ -8,8 +8,8 @@ async function loadCompletedSamples() {
         });
 
         const samples = await res.json();
-        console.log("Fetched samples:", samples);
-        renderApproveSamples(samples);
+        console.log("Fetched samples:", samples.samples);
+        renderApproveSamples(samples.samples);
 
     } catch (err) {
         console.error("API error", err);
@@ -37,7 +37,7 @@ function renderApproveSamples(samples = []) {
       <td>${escapeHtml(s.status)}</td>
       <td>${escapeHtml(s.performed_by)}</td>
       <td>${Number(s.total_tests) || 0}</td>
-      <td>${escapeHtml(s.created_date || '')}</td>
+      <td>${escapeHtml(s.creation_date || '')}</td>
       <td>${escapeHtml(s.completed_date || '')}</td>
       <td>${escapeHtml(s.total_days || '')}</td>
       <td>${Boolean(s.deviations)}</td>
@@ -90,24 +90,38 @@ waitForElement('#sample-approval-table tbody').then(() => {
 
 // ==========================View Tests Details Panel Logic==========================
 
-if (document.querySelector(".sample-approval-component")) {
+if (document.querySelector(".sample-approval-component") && !document.body.dataset.sampleApprovalInit) {
+    document.body.dataset.sampleApprovalInit = "true";
     sampleApprovalInitialized();
 }
 
 async function sampleApprovalInitialized() {
 
     document.addEventListener("click", async (e) => {
-        const btn = e.target.closest(".view-approved-tests");
-        if (!btn) return;
-
-        const sampleName = btn.dataset.sample;
-        await loadApprovalForSample(sampleName);
+        //deviation form
+        const viewDeviationFormBtn = e.target.closest(".view-approved-tests");
+        if (viewDeviationFormBtn) {
+            const sampleName = viewDeviationFormBtn.dataset.sample;
+            await loadApprovalForSample(sampleName);
+            return;
+        }
+        //close deviation form btn
+        const closeApprovalFormBtn = e.target.closest("#close-approval-review-details")
+        if (closeApprovalFormBtn) {
+            loadApprovalForSample();
+            return;
+        }
+        // Close button (attach ONCE)
+        const closeApprovalTestDetailsBtn = e.target.closest("#close-approval-review-details")
+        if (closeApprovalTestDetailsBtn) {
+            closeApprovalTestDetails();
+            return;
+        }
     });
+}
 
-    // Close button (attach ONCE)
-    document.getElementById("close-approval-review-details").addEventListener("click", () => {
-        document.getElementById("sample-approval-component-test-details").classList.add("hidden");
-    });
+async function closeApprovalTestDetails() {
+    document.getElementById("sample-approval-component-test-details").classList.add("hidden");
 }
 
 async function loadApprovalForSample(sampleName) {
@@ -127,12 +141,13 @@ async function loadApprovalForSample(sampleName) {
 
     try {
         const res = await fetch(
-            `http://localhost:8000/`, {
+            `http://localhost:8000/display_tests/management_approval`, {
             method: "GET",
             headers: { "Content-Type": "application/json" }
         });
 
-        const tests = await res.json();
+        const data = await res.json();
+        const tests = data.tests || [];
         console.log("Fetched tests for review:", tests);
 
         // Render rows
@@ -155,13 +170,14 @@ async function loadApprovalForSample(sampleName) {
                  data-sample-name="${sampleName}"
                  data-test-name="${t.test_name}"
                  >
-                  View Deviation Form
+                  Form
                 </button>
               </td>
               <td>
                 <select class="approve-test" name="approve-test" required>
                     <option value=""></option>
                     <option value="True">Approved</option>
+                    <option value="False">Rejected</option>
                 </select>
               </td>
               <td style="display:flex; justify-content:center; align-items:center;">
@@ -184,20 +200,52 @@ async function loadApprovalForSample(sampleName) {
 
 // ==========================Delegated handler for deviation form==========================
 
-document.addEventListener("click", async (e) => {
-    const btn = e.target.closest(".view-deviation-form");
-    if (!btn) return;
+if (!document.body.dataset.deviationFormListenerInit) {
+    document.body.dataset.deviationFormListenerInit = "true";
 
-    const sampleName = btn.dataset.sampleName;
-    const testName = btn.dataset.testName;
+    document.addEventListener("click", async (e) => {
+        // deviation form
+        const deviationFormBtn = e.target.closest(".view-deviation-form");
+        if (deviationFormBtn) {
+            const sampleName = deviationFormBtn.dataset.sampleName;
+            const testName = deviationFormBtn.dataset.testName;
+            deviationFormApproval(sampleName, testName);
+            return;
+        }
 
-    await loadDeviationForm("#sample-deviations-component-details");
+        //deviation form close btn
+        const closeDeviationDocumentBtn = e.target.closest("#deviation-form-close-button");
+        if (closeDeviationDocumentBtn) {
+            closeDeviationDocument();
+            return;
+        }
 
-    document.getElementById("sample-deviations-component-details").classList.remove("hidden");
-    const submitBtn = document.getElementById("deviation-form-submit-button");
-    if (submitBtn) submitBtn.style.display = "none";
-    const saveBtn = document.getElementById("deviation-form-save-button");
-    if (saveBtn) saveBtn.style.display = "none";
+        //approval form close btn
+        const closeApprovalDocumentBtn = e.target.closest("#close-approval-review-details");
+        if (closeApprovalDocumentBtn) {
+            closeApprovalDocument();
+            return;
+        }
+
+        // Submit form btn
+        const submitApprovalDocumentBtn = e.target.closest(".submit-approved-test");
+        if (submitApprovalDocumentBtn) {
+            submitApprovalForm(submitApprovalDocumentBtn);
+            return;
+        }
+    });
+}
+
+async function closeApprovalDocument() {
+    document.getElementById("sample-approval-component-test-details").classList.add("hidden");
+}
+
+
+async function deviationFormApproval (sampleName, testName) {
+
+    const panel = document.getElementById("sample-deviations-component-details");
+    if (!panel) return;   // prevents navigation crash
+    panel.classList.remove("hidden");
 
     try {
         // sampleName and testName were interpolated raw into the
@@ -206,7 +254,7 @@ document.addEventListener("click", async (e) => {
         // server to return no matching record even though one exists.
         // Wrap both values in encodeURIComponent so the URL is always valid.
         const res = await fetch(
-            `http://localhost:8000/deviation_form?sample_name=${encodeURIComponent(sampleName)}&test_name=${encodeURIComponent(testName)}`,
+            `http://localhost:8000/deviation_form/review?sample_name=${encodeURIComponent(sampleName)}&test_name=${encodeURIComponent(testName)}`,
             {
                 method: "GET",
                 headers: { "Content-Type": "application/json" }
@@ -225,9 +273,22 @@ document.addEventListener("click", async (e) => {
         // the autofill whenever any field inside the object was falsy.
         // The backend returns a JSON null when no record exists, so the guard
         // only needs to catch that specific case — not all falsy field values.
-        if (deviation === null || deviation === undefined) {
-            console.log("No existing deviation found — new form");
+        if (deviation === null) {
+            const deviationDocument = document.querySelector("#sample-deviations-component-details")
+            deviationDocument.innerHTML = `
+                <h1 style="text-align: center; font-size: 32px;">
+                    No deviation form available
+                </h1>
+            `;
             return;
+        } else {
+            await loadDeviationForm("#sample-deviations-component-details");
+
+            const submitBtn = document.getElementById("deviation-form-submit-button");
+            if (submitBtn) submitBtn.style.display = "none";
+
+            const saveBtn = document.getElementById("deviation-form-save-button");
+            if (saveBtn) saveBtn.style.display = "none"
         }
 
         await Promise.all([
@@ -326,11 +387,51 @@ document.addEventListener("click", async (e) => {
     } catch (err) {
         console.error("Error loading deviation:", err);
     }
-});
+}
 
-document.addEventListener("click", (e) => {
-    const btn = e.target.closest(".deviation-form-close-button");
-    if (!btn) return;
-
+async function closeDeviationDocument() {
     document.getElementById("sample-deviations-component-details").classList.add("hidden");
-});
+}
+
+async function submitApprovalForm(btn) {
+    const testName = btn.dataset.testName;
+    const sampleName = btn.dataset.sampleName;
+
+    const statusSelect = btn.closest("tr").querySelector(".approve-test");
+    const approvedStatus = statusSelect.value === "True";
+
+    if (!statusSelect.value) {
+        alert("Please select an approval status.");
+        return;
+    }
+
+    try {
+        const response = await fetch (
+            `http://localhost:8000/review_test/management_approval`,
+            {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    sample_name: sampleName,
+                    test_name: testName,
+                    approved_by: localStorage.getItem("username"),
+                    approval_status: approvedStatus
+                })
+
+            }
+        )
+
+        if (response.ok) {
+            alert("Review submitted!");
+            //remove row or reload panel
+            btn.closest("tr").remove();
+        } else {
+            const errText = await response.text();
+            console.error("Server error:", errText);
+            alert(errText);
+        }
+
+    } catch (error) {
+        console.log("Server error:", error);
+    }
+}

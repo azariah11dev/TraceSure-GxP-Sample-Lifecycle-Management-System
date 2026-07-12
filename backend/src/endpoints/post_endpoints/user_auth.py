@@ -25,11 +25,16 @@ async def login(data: LoginRequest, session: AsyncSession = Depends(get_async_se
     
         # Create access token
         access_token = create_access_token(data={"sub": user.username})
-        return {"access_token": access_token,
-                "token_type": "bearer",
-                "username": data.username,
-                "role": user.role
-                }
+
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "username": data.username,
+            "role": user.role
+        }
+    
+    except HTTPException:
+        raise
     
     except Exception as e:
         print(f"Error: {e}")
@@ -63,7 +68,10 @@ async def register(data: RegisterRequest, session: AsyncSession = Depends(get_as
             "status": "ok", 
             "message": "Registration successful!", 
             "user": UserResponse.model_validate(new_user)
-            }
+        }
+    
+    except HTTPException:
+        raise
     
     except Exception as e:
         print(f"Error: {e}")

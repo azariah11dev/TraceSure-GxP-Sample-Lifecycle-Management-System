@@ -66,6 +66,9 @@ async def log_results(data: SampleResults, session: AsyncSession = Depends(get_a
             "open_deviation": (True if (row.status == "out_of_specification") else False)
         }
     
+    except HTTPException:
+        raise
+    
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))

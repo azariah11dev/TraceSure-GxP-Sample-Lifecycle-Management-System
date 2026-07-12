@@ -51,14 +51,20 @@
     display: none !important;
 }
 
-.view-approved-tests {
+.view-approved-tests,
+#close-approval-review-details,
+.view-deviation-form,
+.submit-approved-test {
     padding: 6px 12px;
     background-color: #00004d;
     color: #ffffff;
     border: none;
     border-radius: 4px;
 }
-.view-approved-tests{
+.view-approved-tests:hover,
+.view-deviation-form:hover,
+#close-approval-review-details:hover,
+.submit-approved-test:hover {
     background-color: #000066;
     cursor: pointer;
     transform: scale(1.05);

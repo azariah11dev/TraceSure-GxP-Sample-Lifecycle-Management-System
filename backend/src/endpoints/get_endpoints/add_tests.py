@@ -53,6 +53,9 @@ async def review_test(session: AsyncSession = Depends(get_async_session)):
             s["created_date"] = s["created_date"].strftime("%d-%B-%Y") if s["created_date"] else None
 
         return result
+    
+    except HTTPException:
+        raise
 
     except Exception as e:
         print(f"Error: {e}")
@@ -88,6 +91,9 @@ async def technician_review_test(
             } 
             for r in rows if r.sample_name == sample_name
         ]
+    
+    except HTTPException:
+        raise
 
     except Exception as e:
         print(f"Error: {e}")
@@ -109,6 +115,9 @@ async def get_sample(sample_name: str, session: AsyncSession = Depends(get_async
             "sample_name": sample_name,
             "tests": tests
         }
+    
+    except HTTPException:
+        raise
     
     except Exception as e:
         print(f"Error: {e}")

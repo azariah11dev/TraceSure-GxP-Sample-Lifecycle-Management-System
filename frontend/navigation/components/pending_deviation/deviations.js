@@ -117,8 +117,7 @@ async function LoadDeviationDetails() {
 
         await loadDeviationForm("#pending-deviations-component-details");
 
-        document.getElementById("pending-deviations-component-details")
-            .classList.remove("hidden");
+        document.getElementById("pending-deviations-component-details").classList.remove("hidden");
 
         const submitBtn = document.getElementById("deviation-form-submit-button");
         if (submitBtn) submitBtn.style.display = "none";

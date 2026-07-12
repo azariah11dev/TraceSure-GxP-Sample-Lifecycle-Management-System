@@ -34,6 +34,9 @@ async def get_all_deviations(session: AsyncSession = Depends(get_async_session))
             }
             for r in result
         ]
+    
+    except HTTPException:
+        raise
 
     except Exception as e:
         print(f"Error: {e}")
@@ -81,6 +84,82 @@ async def deviation_test(
             "status": sample_row.status,
             "previous_performer": sample_row.performed_by,
         }
+    
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@deviation_form_router.get("/review")
+async def get_deviation(
+    sample_name: str,
+    test_name: str,
+    session: AsyncSession = Depends(get_async_session)
+):
+    try:
+        query = (
+            select(DeviationForm)
+            .where(DeviationForm.sample_name == sample_name)
+            .where(DeviationForm.test_name == test_name)
+            .where(DeviationForm.form_status == "approved")
+        )
+
+        result = await session.execute(query)
+        row = result.scalars().first()
+
+        if row is None:
+            # Return null explicitly so the frontend can distinguish "no record"
+            # from a serialization error.
+            return None
+
+        # FastAPI cannot serialize a raw SQLAlchemy ORM instance.
+        # Returning `row` directly causes a 500 or an empty body, which the JS
+        # then treats as null and exits before filling the form.
+        # Convert to a plain dict so FastAPI's JSON encoder can handle it.
+        return {
+            "deviation_code": row.deviation_code,
+            "deviation_date": row.deviation_date.isoformat() if row.deviation_date else None,
+            "deviation_report_date": row.deviation_report_date.isoformat() if row.deviation_report_date else None,
+            "deviation_department": row.deviation_department,
+            "deviation_reported_at": row.deviation_reported_at,
+            "deviation_type": row.deviation_type,
+            "deviation_severity": row.deviation_severity,
+            "deviation_short_description": row.deviation_short_description,
+            "deviation_long_description": row.deviation_long_description,
+            "deviation_location": row.deviation_location,
+            "deviation_sop_number": row.deviation_sop_number,
+            "deviation_instrument_id": row.deviation_instrument_id,
+            "deviation_sample_type": row.deviation_sample_type,
+            "deviation_quantity_impacted": row.deviation_quantity_impacted,
+            "deviation_batch_released": row.deviation_batch_released,
+            "potential_impact_to_product_quality": row.potential_impact_to_product_quality,
+            "immediate_action_taken": row.immediate_action_taken,
+            "date_action_taken": row.date_action_taken.isoformat() if row.date_action_taken else None,
+            "deviation_test_performed_by": row.deviation_test_performed_by,
+            "was_testing_repeated": row.was_testing_repeated,
+            "reference_to_retest": row.reference_to_retest,
+            "investigation_required": row.investigation_required,
+            "investigation_assigned_to": row.investigation_assigned_to,
+            "investigation_start_date": row.investigation_start_date.isoformat() if row.investigation_start_date else None,
+            "investigation_end_date": row.investigation_end_date.isoformat() if row.investigation_end_date else None,
+            "root_cause_category": row.root_cause_category,
+            "root_cause_description": row.root_cause_description,
+            "capa_required": row.capa_required,
+            "correction_action": row.correction_action,
+            "preventative_action": row.preventative_action,
+            "responsible_person": row.responsible_person,
+            "target_completion_date": row.target_completion_date.isoformat() if row.target_completion_date else None,
+            "effectiveness_check_required": row.effectiveness_check_required,
+            "batch_disposition": row.batch_disposition,
+            "form_status": row.form_status,
+            "submitted_by": row.submitted_by,
+        }
+    
+    except HTTPException:
+        raise
 
     except Exception as e:
         print(f"Error: {e}")
@@ -159,6 +238,9 @@ async def get_deviation(
             "form_status": row.form_status,
             "submitted_by": row.submitted_by,
         }
+    
+    except HTTPException:
+        raise
 
     except Exception as e:
         print(f"Error: {e}")

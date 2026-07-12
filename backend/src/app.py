@@ -14,6 +14,7 @@ from endpoints.put_endpoints.review_tests import review_test_router
 from endpoints.get_endpoints.add_tests import add_test_router
 from endpoints.get_endpoints.display_tests import display_tests_router
 from endpoints.get_endpoints.deviation_form_router import deviation_form_router
+from endpoints.get_endpoints.user_roles import user_role_router
 
 from models.database import create_db_and_tables
 
@@ -59,3 +60,4 @@ app.include_router(review_test_router)
 app.include_router(add_test_router)
 app.include_router(display_tests_router)
 app.include_router(deviation_form_router)
+app.include_router(user_role_router)

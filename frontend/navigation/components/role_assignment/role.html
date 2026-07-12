@@ -1,0 +1,42 @@
+<div class="user-role-component">
+    <h1 class="user-role-header">User Role Assignment</h1>
+
+    <div class="user-role-card">
+        <label for="role-username">Username</label>
+        <input type="text" id="role-username" placeholder="Enter username">
+
+        <label for="role-select">Select Role</label>
+        <select id="role-select">
+            <option value="">-- Choose Role --</option>
+            <option value="Admin">Admin</option>
+            <option value="Technician">Technician</option>
+            <option value="Manager">Manager</option>
+            <option value="QA">QA</option>
+            <option value="Supervisor">Supervisor</option>
+        </select>
+
+        <div class="assign-btn-wrapper">
+            <button id="assign-role-btn">Assign Role</button>
+        </div>
+
+        <p id="role-message" class="role-message"></p>
+    </div>
+
+    <div class="available-users">
+        <h2 class="available-users-title">Available Users</h2>
+
+        <div class="current-users-component-table">
+            <table id="users-table">
+                <thead>
+                    <tr>
+                        <th>User Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Activity</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>

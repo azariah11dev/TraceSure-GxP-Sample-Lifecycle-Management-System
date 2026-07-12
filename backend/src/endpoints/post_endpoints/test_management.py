@@ -44,10 +44,14 @@ async def create_sample(data: SampleCreation, session: AsyncSession = Depends(ge
 
         formatted_date = result_row[0].created_date.strftime("%d-%m-%Y")
 
-        return {"sample name": data.sample_name,
-                "created by": data.created_by,
-                "created date": formatted_date
-                }
+        return {
+            "sample name": data.sample_name,
+            "created by": data.created_by,
+            "created date": formatted_date
+        }
+    
+    except HTTPException:
+        raise
     
     except Exception as e:
         print(f"Error: {e}")
@@ -113,6 +117,9 @@ async def add_tests(data: SampleCreation, session: AsyncSession = Depends(get_as
             "added_tests": requested_tests,
             "message": f"Successfully added {len(requested_tests)} new tests to sample {data.sample_name}."
         }
+    
+    except HTTPException:
+        raise
     
     except Exception as e:
         print(f"Error: {e}")

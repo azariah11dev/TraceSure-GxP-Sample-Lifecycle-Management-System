@@ -68,6 +68,20 @@ document.addEventListener("DOMContentLoaded", () => {
         "/scripts/dashboard/dashboard-main.js"
     );
 
+    document.getElementById("home-logo-dashboard").addEventListener("click", () => {
+        loadComponent(
+            "/navigation/components/dashboard/dashboard.html",
+            "/scripts/dashboard/dashboard-main.js"
+        );
+    });
+
+    document.getElementById("dashboard").addEventListener("click", () => {
+        loadComponent(
+            "/navigation/components/dashboard/dashboard.html",
+            "/scripts/dashboard/dashboard-main.js"
+        );
+    });
+
     document.getElementById("create").addEventListener("click", () => {
         loadComponent(
             "/navigation/components/sample_creation/creation.html",
@@ -121,6 +135,13 @@ document.addEventListener("DOMContentLoaded", () => {
         loadComponent(
             "/navigation/components/pending_deviation/deviations.html",
             "/navigation/components/pending_deviation/deviations.js"
+        );
+    });
+
+    document.getElementById("role-assignment").addEventListener("click", () => {
+        loadComponent(
+            "/navigation/components/role_assignment/role.html",
+            "/navigation/components/role_assignment/role.js"
         );
     });
 

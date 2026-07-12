@@ -86,24 +86,40 @@ waitForElement('#sample-review-table tbody').then(() => {
 
 // ==========================View Tests Details Panel Logic==========================
 
-if (document.querySelector(".sample-review-component")) {
-    initializeSampleReview();
+if (document.querySelector(".sample-review-component") && !document.body.dataset.sampleReviewInit) {
+    document.body.dataset.sampleReviewInit= "true";
+    sampleReviewInitialized();
 }
 
-async function initializeSampleReview() {
+async function sampleReviewInitialized() {
     document.addEventListener("click", async (e) => {
-        if (!e.target.closest(".view-tests")) return;
+        //load samples for review
+        const viewTestBtn = e.target.closest(".view-tests");
+        if (viewTestBtn) {
+            const sampleName = viewTestBtn.dataset.sample;
+            await loadReviewForSample(sampleName);
+            return;
+        }
 
-        const sampleName = e.target.dataset.sample;
-        await loadReviewForSample(sampleName);
-    });
+        // SUBMIT REVIEW
+        const submitBtn = e.target.closest(".submit-review-test");
+        if (submitBtn) {
+            await handleSubmitReview(submitBtn);
+            return;
+        }
 
-    // Close button (attach ONCE)
-    document.addEventListener("click", (e) => {
-        if (e.target.id === "close-test-review-details") {
-            document.querySelector(".sample-review-component-test-details").classList.add("hidden");
+        //close button
+        const closeReviewFormBtn = e.target.closest("#close-test-review-details");
+        if (closeReviewFormBtn) {
+            await closeSampleReview();
+            return;
         }
     });
+
+}
+
+async function closeSampleReview() {
+    document.querySelector(".sample-review-component-test-details").classList.add("hidden");
 }
 
 async function loadReviewForSample(sampleName) {
@@ -146,7 +162,8 @@ async function loadReviewForSample(sampleName) {
               <td>${t.status ?? ""}</td>
               <td>
                 <select class="review-test" name="review-test" required>
-                    <option value=""></option>
+                    <option></option>
+                    <option value="False">Rejected</option>
                     <option value="True">Approved</option>
                 </select>
               </td>
@@ -166,15 +183,13 @@ async function loadReviewForSample(sampleName) {
 
 // ==========================Review Tests Details Panel Logic==========================
 
-document.addEventListener("click", async (e) => {
-    const btn = e.target.closest(".submit-review-test");
-    if (!btn) return;
+async function handleSubmitReview(btn) {
 
     const testName = btn.dataset.testName;
     const sampleName = btn.dataset.sampleName;
 
     const statusSelect = btn.closest("tr").querySelector(".review-test");
-    const reviewed_status = statusSelect.value === "True";
+    const reviewedStatus = statusSelect.value === "True";
 
     if (!statusSelect.value) {
         alert("Please select a review status.");
@@ -191,14 +206,14 @@ document.addEventListener("click", async (e) => {
                     sample_name: sampleName,
                     test_name: testName,
                     reviewed_by: localStorage.getItem("username"),
-                    reviewed_status
+                    reviewed_status: reviewedStatus
                 })
             }
         );
 
         if (res.ok) {
             alert("Review submitted!");
-            // Optional: remove row or reload panel
+            //remove row or reload panel
             btn.closest("tr").remove();
         } else {
             const errText = await res.text();
@@ -207,6 +222,6 @@ document.addEventListener("click", async (e) => {
         }
 
     } catch (error) {
-        console.error("Server error:", error);
+        console.log("Server error:", error);
     }
-});
+}

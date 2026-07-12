@@ -45,6 +45,9 @@ async def approve_deviation_form(
             "approver_role": deviation_form.approver_role
         }
     
+    except HTTPException:
+        raise
+    
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -111,6 +114,9 @@ async def final_test(
             "performed_by": data.test_performer,
             "status": status
         }
+    
+    except HTTPException:
+        raise
 
     except Exception as e:
         print(f"Error: {e}")

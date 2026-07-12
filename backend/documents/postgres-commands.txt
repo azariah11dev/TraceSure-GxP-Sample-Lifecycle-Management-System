@@ -32,6 +32,10 @@ COUNT ROWS
 ----------------------------------------
 SELECT COUNT(*) FROM table_name;
 
+TURN OFF PAGER
+----------------------------------------
+\pset pager off
+
 INSERT A ROW
 ----------------------------------------
 INSERT INTO users (username, email, password_hash)

@@ -9,6 +9,30 @@ from models.deviationformdb import DeviationForm
 
 display_tests_router = APIRouter(prefix="/display_tests", tags=["display_tests"])
 
+@display_tests_router.get("/dashboard")
+async def dashboard(session: AsyncSession = Depends(get_async_session)):
+    try:
+        query = await session.execute(select(Samples))
+        result = query.scalars().all()
+
+        return [
+            {
+                "QA_approval": r.QA_approval,
+                "status": r.status,
+                "reviewed_status": r.reviewed_status,
+                "manager_approval": r.manager_approval
+            }
+            for r in result
+        ]
+    
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @display_tests_router.get("/deviations")
 async def get_deviations(session: AsyncSession = Depends(get_async_session)):
     try:
@@ -48,14 +72,18 @@ async def get_deviations(session: AsyncSession = Depends(get_async_session)):
             for r in rows
         ]
     
+    except HTTPException:
+        raise
+    
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @display_tests_router.get("/management_approval")
-async def get_management_approval(session: AsyncSession = Depends(get_async_session)):
+async def get_management_approval_combined(session: AsyncSession = Depends(get_async_session)):
     try:
+        # Fetch all tests needing manager approval
         query = (
             select(Samples)
             .where(Samples.reviewed_status == True)
@@ -64,8 +92,14 @@ async def get_management_approval(session: AsyncSession = Depends(get_async_sess
         rows = (await session.execute(query)).scalars().all()
 
         if not rows:
-            return []
+            return {
+                "samples": [],
+                "tests": []
+            }
 
+        # ─────────────────────────────────────────────
+        # SAMPLE‑LEVEL AGGREGATION
+        # ─────────────────────────────────────────────
         samples = {}
 
         for row in rows:
@@ -82,31 +116,29 @@ async def get_management_approval(session: AsyncSession = Depends(get_async_sess
                     "deviations": 0,
                 }
 
-            # increment test count
             samples[name]["total_tests"] += 1
 
-            # track earliest creation date
+            # earliest creation date
             if row.created_date:
                 if samples[name]["creation_date"] is None or row.created_date < samples[name]["creation_date"]:
                     samples[name]["creation_date"] = row.created_date
 
-            # track latest completed date
+            # latest completed date
             if row.test_completed_date:
                 if samples[name]["completed_date"] is None or row.test_completed_date > samples[name]["completed_date"]:
                     samples[name]["completed_date"] = row.test_completed_date
 
-            # count deviations
+            # deviation count
             if row.status == "out_of_specification":
                 samples[name]["deviations"] += 1
 
-        # Final formatting
-        output = []
+        sample_output = []
         for name, s in samples.items():
             total_days = None
             if s["creation_date"] and s["completed_date"]:
                 total_days = (s["completed_date"] - s["creation_date"]).days
 
-            output.append({
+            sample_output.append({
                 "sample_name": name,
                 "status": s["status"],
                 "performed_by": s["performed_by"],
@@ -117,12 +149,135 @@ async def get_management_approval(session: AsyncSession = Depends(get_async_sess
                 "deviations": s["deviations"],
             })
 
-        return output
+        # ─────────────────────────────────────────────
+        # TEST‑LEVEL LISTING
+        # ─────────────────────────────────────────────
+        test_output = [
+            {
+                "test_name": r.test_name,
+                "performed_by": r.performed_by,
+                "test_result": r.result,
+                "upper_spec": r.spec_range_upper_limit,
+                "lower_spec": r.spec_range_lower_limit,
+                "unit": r.unit,
+                "status": r.status,
+                "reviewed_by": r.reviewed_by,
+                "deviation": (True if r.status == "out_of_specification" else False)
+            }
+            for r in rows
+        ]
+
+        # ─────────────────────────────────────────────
+        # RETURN BOTH IN ONE RESPONSE
+        # ─────────────────────────────────────────────
+        return {
+            "samples": sample_output,
+            "tests": test_output
+        }
+    
+    except HTTPException:
+        raise
 
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@display_tests_router.get("/test_for_release")
+async def get_management_approval(session: AsyncSession = Depends(get_async_session)):
+    try:
+        # Fetch all tests needing manager approval
+        query = (
+            select(Samples)
+            .where(Samples.manager_approval == True)
+            .where(Samples.QA_approval == False)
+        )
+        rows = (await session.execute(query)).scalars().all()
+
+        if not rows:
+            return {
+                "samples": [],
+                "tests": []
+            }
+        
+        # ─────────────────────────────────────────────
+        # SAMPLE‑LEVEL AGGREGATION
+        # ─────────────────────────────────────────────
+        samples = {}
+
+        for row in rows:
+            name = row.sample_name
+
+            if name not in samples:
+                samples[name] = {
+                    "sample_name": name,
+                    "status": row.status,
+                    "approved_by": row.manager_name,
+                    "total_tests": 0,
+                    "creation_date": row.created_date,
+                    "completed_date": row.test_completed_date
+                }
+
+            samples[name]["total_tests"] += 1
+
+            # earliest creation date
+            if row.created_date:
+                if samples[name]["creation_date"] is None or row.created_date < samples[name]["creation_date"]:
+                    samples[name]["creation_date"] = row.created_date
+
+            # latest completed date
+            if row.test_completed_date:
+                if samples[name]["completed_date"] is None or row.test_completed_date > samples[name]["completed_date"]:
+                    samples[name]["completed_date"] = row.test_completed_date
+
+        sample_output = []
+        for name, s in samples.items():
+            total_days = None
+            if s["creation_date"] and s["completed_date"]:
+                total_days = (s["completed_date"] - s["creation_date"]).days
+
+            sample_output.append({
+                "sample_name": name,
+                "status": s["status"],
+                "performed_by": s["performed_by"],
+                "total_tests": s["total_tests"],
+                "creation_date": s["creation_date"].strftime("%d-%B-%Y") if s["creation_date"] else None,
+                "completed_date": s["completed_date"].strftime("%d-%B-%Y") if s["completed_date"] else None,
+                "total_days": total_days,
+                "deviations": s["deviations"],
+            })
+
+        # ─────────────────────────────────────────────
+        # TEST‑LEVEL LISTING
+        # ─────────────────────────────────────────────
+        test_output = [
+            {
+                "test_name": r.test_name,
+                "performed_by": r.manager_name,
+                "test_result": r.result,
+                "upper_spec": r.spec_range_upper_limit,
+                "lower_spec": r.spec_range_lower_limit,
+                "unit": r.unit,
+                "status": r.status,
+                "approval_status": r.manager_approval,
+            }
+            for r in rows
+        ]
+
+        # ─────────────────────────────────────────────
+        # RETURN BOTH IN ONE RESPONSE
+        # ─────────────────────────────────────────────
+        return {
+            "samples": sample_output,
+            "tests": test_output
+        }
+    
+    except HTTPException:
+        raise
+    
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @display_tests_router.get("/{sample_name}")
@@ -147,12 +302,15 @@ async def get_tests_for_sample(sample_name: str, session: AsyncSession = Depends
             for r in rows
         ]
     
+    except HTTPException:
+        raise
+    
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@display_tests_router.get("")
+@display_tests_router.get("/")
 async def display_tests(session: AsyncSession = Depends(get_async_session)):
     try:
         query = select(Samples).where(Samples.manager_approval == False)
@@ -194,6 +352,9 @@ async def display_tests(session: AsyncSession = Depends(get_async_session)):
             s["creation_date"] = s["creation_date"].strftime("%d-%B-%Y")
 
         return result
+    
+    except HTTPException:
+        raise
 
     except Exception as e:
         print(f"Error: {e}")

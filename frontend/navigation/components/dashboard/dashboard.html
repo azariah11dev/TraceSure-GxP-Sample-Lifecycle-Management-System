@@ -1,0 +1,44 @@
+<div class="body">
+    <div class="dashboard">
+        <h1 class="dashboard-title">Samples Summary Dashboard</h1>
+
+        <section class="cards">
+            <div class="card">
+                <h2>Total Samples</h2>
+                <p id="total-samples">0</p>
+            </div>
+
+            <div class="card">
+                <h2>Released</h2>
+                <p id="released-samples">0</p>
+            </div>
+
+            <div class="card">
+                <h2>Out of Spec</h2>
+                <p id="oos-samples">0</p>
+            </div>
+
+            <div class="card">
+                <h2>Pending Manager Approval</h2>
+                <p id="pending-manager">0</p>
+            </div>
+
+            <div class="card">
+                <h2>Pending QA Approval</h2>
+                <p id="pending-qa">0</p>
+            </div>
+        </section>
+
+        <section class="charts">
+            <div class="chart-container">
+                <h3>Status Distribution</h3>
+                <canvas id="statusChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h3>Approval Progress</h3>
+                <canvas id="approvalChart"></canvas>
+            </div>
+        </section>
+    </div>
+</div>

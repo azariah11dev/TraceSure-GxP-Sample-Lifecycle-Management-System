@@ -102,3 +102,15 @@ class ReviewTestResults(BaseModel):
     test_name: str
     reviewed_by: str
     reviewed_status: bool
+
+class ApproveTestResults(BaseModel):
+    sample_name: str
+    test_name: str
+    approved_by: str
+    approval_status: bool
+
+class ReleaseTestResults(BaseModel):
+    sample_name: str
+    test_name: str
+    released_by: str
+    release_status: bool

@@ -280,6 +280,78 @@ async def get_management_approval(session: AsyncSession = Depends(get_async_sess
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@display_tests_router.get("/historical")
+async def historical_tests(session: AsyncSession = Depends(get_async_session)):
+    try:
+        query = (
+            select(Samples)
+            .where(Samples.QA_approval == True)
+            .order_by(Samples.test_completed_date.desc())
+        )
+        rows = (await session.execute(query)).scalars().all()
+
+        if not rows:
+            return {"samples": [], "tests": []}
+
+        samples = {}
+
+        for r in rows:
+            name = r.sample_name
+
+            if name not in samples:
+                samples[name] = {
+                    "sample_name": name,
+                    "total_tests": 0,
+                    "creation_date": r.created_date,
+                    "completed_date": r.test_completed_date
+                }
+
+            samples[name]["total_tests"] += 1
+
+            if r.created_date and (samples[name]["creation_date"] is None or r.created_date < samples[name]["creation_date"]):
+                samples[name]["creation_date"] = r.created_date
+
+            if r.test_completed_date and (samples[name]["completed_date"] is None or r.test_completed_date > samples[name]["completed_date"]):
+                samples[name]["completed_date"] = r.test_completed_date
+
+        sample_output = []
+        for name, s in samples.items():
+            total_days = None
+            if s["creation_date"] and s["completed_date"]:
+                total_days = (s["completed_date"] - s["creation_date"]).days
+
+            sample_output.append({
+                "sample_name": name,
+                "total_tests": s["total_tests"],
+                "creation_date": s["creation_date"].strftime("%d-%B-%Y") if s["creation_date"] else None,
+                "completed_date": s["completed_date"].strftime("%d-%B-%Y") if s["completed_date"] else None,
+                "total_days": total_days,
+            })
+
+        test_output = [
+            {
+                "test_name": r.test_name,
+                "performed_by": r.performed_by,
+                "test_result": r.result,
+                "upper_spec": r.spec_range_upper_limit,
+                "lower_spec": r.spec_range_lower_limit,
+                "unit": r.unit,
+                "status": r.status,
+                "reviewed_by": r.reviewed_by,
+                "deviation": (r.status == "out_of_specification"),
+                "approved_by": r.manager_name,
+                "released_by": r.QA_name
+            }
+            for r in rows
+        ]
+
+        return {"samples": sample_output, "tests": test_output}
+
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @display_tests_router.get("/{sample_name}")
 async def get_tests_for_sample(sample_name: str, session: AsyncSession = Depends(get_async_session)):
     try:

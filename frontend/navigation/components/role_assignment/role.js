@@ -29,8 +29,10 @@ async function roleAssignment () {
                 `http://localhost:8000/role_assign/assign_role?username=${encodeURIComponent(username)}&role=${encodeURIComponent(role)}`,
                 {
                     method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include"
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    },
                 }
             );
 
@@ -44,6 +46,9 @@ async function roleAssignment () {
 
             messageBox.textContent = data.message;
             messageBox.style.color = "#66fcf1";
+            setTimeout(() => {
+            window.location.reload();
+            }, 5000);
 
         } catch (err) {
             console.error("Role assignment error:", err);

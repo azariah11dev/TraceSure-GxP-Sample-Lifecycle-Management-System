@@ -83,30 +83,36 @@ async def management_approval_status(
         if approval_sample.reviewed_by == data.approved_by:
             raise HTTPException(status_code=400, detail="Technician reviewer cannot approve the test")
 
+        # Fetch deviation form once
+        deviation_query = (
+            select(DeviationForm)
+            .where(DeviationForm.sample_name == data.sample_name)
+            .where(DeviationForm.test_name == data.test_name)
+        )
+        form_result = await session.execute(deviation_query)
+        approval_deviation_form = form_result.scalars().first()
+
+        if not approval_deviation_form:
+            raise HTTPException(status_code=404, detail="Deviation form not found for this test")
+
         # Manager rejects test → update deviation form
         if data.approval_status is False:
-            deviation_query = (
-                select(DeviationForm)
-                .where(DeviationForm.sample_name == data.sample_name)
-                .where(DeviationForm.test_name == data.test_name)
-            )
-            form_result = await session.execute(deviation_query)
-            approval_deviation_form = form_result.scalars().first()
-
-            if not approval_deviation_form:
-                raise HTTPException(status_code=404, detail="Deviation form not found for this test")
-
+            approval_deviation_form.form_status = "draft"
             approval_deviation_form.approval_status = False
-
-            await session.commit()
-            await session.refresh(approval_deviation_form)
 
         # Update manager approval fields
         approval_sample.manager_name = data.approved_by
         approval_sample.manager_approval = data.approval_status
 
+        # Update deviation form approval fields
+        approval_deviation_form.form_approver_name = data.approver_name
+        approval_deviation_form.form_approver_role = data.approver_role
+        approval_deviation_form.approval_status = data.approval_status
+
+        # Commit once
         await session.commit()
         await session.refresh(approval_sample)
+        await session.refresh(approval_deviation_form)
 
         return {
             "sample_name": approval_sample.sample_name,

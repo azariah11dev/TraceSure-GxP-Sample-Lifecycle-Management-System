@@ -43,6 +43,44 @@ async def get_all_deviations(session: AsyncSession = Depends(get_async_session))
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@deviation_form_router.get("/modification")
+async def form_modification(session: AsyncSession = Depends(get_async_session)):
+    try:
+        query = (
+            select(DeviationForm)
+            .where(
+                or_(
+                    DeviationForm.approval_status == False,
+                    DeviationForm.form_status == "draft"
+                )
+            )
+        )
+        result = (await session.execute(query)).scalars().all()
+
+        if not result:
+            return []
+        
+        return [
+            {
+                "sample_name": d.sample_name,
+                "test_name": d.test_name,
+                "deviation_code": d.deviation_code,
+                "deviation_date": (
+                    d.deviation_date.strftime("%d %b %Y %I:%M %p")
+                    if d.deviation_date else None
+                )
+            }
+            for d in result
+        ]
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @deviation_form_router.get("/tests")
 async def deviation_test(
     sample_name: str,
@@ -166,7 +204,7 @@ async def get_deviation(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@deviation_form_router.get("")
+@deviation_form_router.get("/")
 async def get_deviation(
     sample_name: str,
     test_name: str,
@@ -184,6 +222,7 @@ async def get_deviation(
                 or_(
                     func.lower(DeviationForm.form_status) == "draft",
                     func.lower(DeviationForm.form_status) == "submitted",
+                    DeviationForm.approval_status == False
                 )
             )
         )

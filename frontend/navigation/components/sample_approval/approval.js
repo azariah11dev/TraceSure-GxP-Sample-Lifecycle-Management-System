@@ -78,8 +78,6 @@ function attachDelegatedHandlers() {
 function delegatedClick(e) {
     const btn = e.target.closest('button.view-approved-tests');
     if (!btn) return;
-    const sampleName = btn.dataset.sample;
-    if (!sampleName) return;
 }
 
 // Ensure the table exists, then initialize
@@ -415,6 +413,7 @@ async function submitApprovalForm(btn) {
                     sample_name: sampleName,
                     test_name: testName,
                     approved_by: localStorage.getItem("username"),
+                    approver_role: localStorage.getItem("role"),
                     approval_status: approvedStatus
                 })
 

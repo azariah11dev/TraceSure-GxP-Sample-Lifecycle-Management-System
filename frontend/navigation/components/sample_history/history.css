@@ -1,0 +1,71 @@
+.sample-history-component {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 20px;
+    background-color: #001a4d;
+    color: #ffffff;
+    gap: 20px;
+}
+
+.sample-history-component-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    padding: 0 30px;
+}
+
+.sample-history-component-table {
+    background-color: #002266;
+    padding: 20px;
+    border-radius: 15px;
+    width: 100%;
+    overflow-x: auto;
+}
+
+#sample-history-table,
+#sample-history-test-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+
+#sample-history-table th,
+#sample-history-table td,
+#sample-history-test-table th,
+#sample-history-test-table td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+#sample-history-table th,
+#sample-history-test-table th {
+    font-weight: 600;
+}
+
+/* utility */
+.hidden { 
+    display: none !important;
+}
+
+#close-historical-review-details,
+.view-completed-tests,
+.view-deviation-form,
+#deviation-form-close-button {
+    padding: 6px 12px;
+    background-color: #00004d;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+}
+#close-historical-review-details:hover,
+.view-completed-tests:hover,
+.view-deviation-form:hover,
+#deviation-form-close-button:hover {
+    background-color: #000066;
+    cursor: pointer;
+    transform: scale(1.05);
+}

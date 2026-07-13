@@ -1,196 +1,121 @@
-// run when the component HTML is present
-async function loadHistoricalSamples() {
+async function getDeviationDocument() {
     try {
-        const res = await fetch(
-            "http://localhost:8000/display_tests/historical", {
+        const response = await fetch(`http://localhost:8000/deviation_form/modification`, {
             method: "GET",
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json" },
         });
 
-        const samples = await res.json();
-        console.log("Fetched samples:", samples.samples);
-        renderHistoricalSamples(samples.samples);
+        const data = await response.json();
+        DeviationList(data);
 
-    } catch (err) {
-        console.error("API error", err);
+    } catch (error) {
+        console.error("Error fetching deviations:", error);
         renderEmpty();
     }
 }
 
-function renderHistoricalSamples(samples = []) {
-    const tbody = document.querySelector('#sample-history-table tbody');
-    if (!tbody) return;
-
-    tbody.innerHTML = '';
-
-    if (!samples.length) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td colspan="7" style="text-align:center">No acompleted samples</td>`;
-        tbody.appendChild(tr);
+function DeviationList(deviations = []) {
+    const tbody = document.querySelector("#deviation-document-table tbody");
+    if (!tbody) {
+        console.error("Table body element not found");
         return;
     }
 
-    samples.forEach(s => {
-        const row = document.createElement('tr');
+    tbody.innerHTML = "";
+
+    if (!deviations.length) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align:center">No deviations found</td>
+            </tr>`;
+        return;
+    }
+
+    deviations.forEach((dev) => {
+        const row = document.createElement("tr");
         row.innerHTML = `
-      <td>${escapeHtml(s.sample_name)}</td>
-      <td>${Number(s.total_tests) || 0}</td>
-      <td>${escapeHtml(s.creation_date || '')}</td>
-      <td>${escapeHtml(s.completed_date || '')}</td>
-      <td>${escapeHtml(s.total_days || '')}</td>
-      <td style="display:flex; justify-content:center; align-items:center;">
-        <button
-        data-sample-name="${escapeHtml(s.sample_name)}"
-         class="view-completed-tests"
-         >
-            View Tests
-        </button>
-      </td>
-    `;
+            <td>${escapeHtml(dev.sample_name)}</td>
+            <td>${escapeHtml(dev.test_name)}</td>
+            <td>${escapeHtml(dev.deviation_code)}</td>
+            <td>${escapeHtml(dev.deviation_date)}</td>
+            <td style="display:flex; justify-content:center; align-items:center;">
+                <button
+                    data-sample-name="${escapeHtml(dev.sample_name)}"
+                    data-test-name="${escapeHtml(dev.test_name)}"
+                    class="view-deviation-form-btn"
+                >
+                    View
+                </button>
+            </td>
+        `;
         tbody.appendChild(row);
     });
 }
 
 function renderEmpty() {
-    const tbody = document.querySelector('#sample-history-table tbody');
+    const tbody = document.querySelector('#deviation-document-table tbody');
     if (!tbody) return;
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center">Unable to load samples</td></tr>`;
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="5" style="text-align:center">Unable to load deviation Form</td>
+        </tr>`;
 }
 
 function escapeHtml(str = '') {
-    return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    return String(str).replace(/[&<>"']/g, c => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[c]));
 }
 
-// Attach a single delegated click handler to the table body (attach once)
-function attachDelegatedHandlers() {
-    const tbody = document.querySelector('#sample-history-table tbody');
-    if (!tbody) return;
-
-    // Remove previous handler if any (idempotent)
-    tbody.removeEventListener('click', delegatedClick);
-    tbody.addEventListener('click', delegatedClick);
-}
-
-function delegatedClick(e) {
-    const btn = e.target.closest('button.view-completed-tests');
-    if (!btn) return;
-}
-
-// Ensure the table exists, then initialize
-waitForElement('#sample-history-table tbody').then(() => {
-    attachDelegatedHandlers();
-    loadHistoricalSamples();
+waitForElement('#deviation-document-table tbody').then(() => {
+    getDeviationDocument();
 });
 
-// ==========================View Tests Details Panel Logic==========================
 
-if (document.querySelector(".sample-history-component") && !document.body.dataset.historicalSampleInit) {
-    document.body.dataset.historicalSampleInit = "true";
-    historicalSampleInitialized();
-}
 
-async function historicalSampleInitialized() {
+// ==========================Delegated handler for deviation form==========================
+
+if (!document.body.dataset.deviationDocumentListenerInit) {
+    document.body.dataset.deviationDocumentListenerInit = "true";
 
     document.addEventListener("click", async (e) => {
-        //view historical tests
-        const viewDeviationFormBtn = e.target.closest(".view-completed-tests");
-        if (viewDeviationFormBtn) {
-            await loadDataForHistoricalSample(viewDeviationFormBtn);
+        // view deviation form
+        const deviationDocumentDisplayBtn = e.target.closest(".view-deviation-form-btn");
+        if (deviationDocumentDisplayBtn) {
+            deviationDocumentDisplay(deviationDocumentDisplayBtn);
             return;
         }
-        //open deviation form btn
-        const openDeviationFormBtn = e.target.closest(".view-deviation-form")
-        if (openDeviationFormBtn) {
-            deviationFormHistorical(openDeviationFormBtn);
+        // submit deviation form
+        const deviationDocumentSubmitBtn = e.target.closest("#deviation-form-submit-button");
+        // save deviation form
+        const deviationDocumentSaveBtn = e.target.closest("#deviation-form-save-button");
+        if (deviationDocumentSubmitBtn || deviationDocumentSaveBtn) {
+            deviationDocumentProcess(deviationDocumentSubmitBtn, deviationDocumentSaveBtn, e);
             return;
         }
-        // Close button deviation form
-        const closeDeviationFormBtn = e.target.closest("#deviation-form-close-button")
-        if (closeDeviationFormBtn) {
-            closeDeviationForm();
-            return;
-        }
-        // Close form
-        const closeHistoricalTestDetailsBtn = e.target.closest("#close-historical-review-details")
-        if (closeHistoricalTestDetailsBtn) {
-            closeHistoricalTestDetails();
+        // close deviation form
+        const deviationDocumentCloseBtn = await e.target.closest("#deviation-form-close-button");
+        if (deviationDocumentCloseBtn) {
+            deviationDocumentClose();
             return;
         }
     });
 }
 
-async function closeHistoricalTestDetails() {
-    document.getElementById("sample-history-component-test-details").classList.add("hidden");
+async function deviationDocumentClose() {
+    document.getElementById("deviation-form-display").classList.add("hidden");
 }
 
-async function loadDataForHistoricalSample(viewDeviationFormBtn) {
+async function deviationDocumentDisplay (deviationDocumentDisplayBtn) {
 
-    const sampleName = viewDeviationFormBtn.dataset.sampleName
-    const panel = document.getElementById("sample-history-component-test-details");
-    if (!panel) return;
+    const sampleName = deviationDocumentDisplayBtn.dataset.sampleName
+    const testName = deviationDocumentDisplayBtn.dataset.testName
 
-    const title = document.getElementById("sample-history-component-test-details-title");
-    const tbody = document.querySelector("#sample-history-test-table tbody");
-    if (!title || !tbody) return;
-
-    // Show panel
-    panel.classList.remove("hidden");
-    // Set title
-    title.textContent = `Tests for: ${sampleName}`;
-    // Clear old rows
-    tbody.innerHTML = "";
-
-    try {
-        const res = await fetch(
-            `http://localhost:8000/display_tests/historical`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" }
-        });
-
-        const data = await res.json();
-        const tests = data.tests || [];
-        console.log("Fetched tests for review:", tests);
-
-        // Render rows
-        tests.forEach(t => {
-            const row = document.createElement("tr");
-
-            row.innerHTML = `
-              <td>${t.test_name}</td>
-              <td>${t.performed_by ?? ""}</td>
-              <td>${t.test_result}</td>
-              <td>${t.upper_spec ?? ""}</td>
-              <td>${t.lower_spec ?? ""}</td>
-              <td>${t.unit ?? ""}</td>
-              <td>${t.status ?? ""}</td>
-              <td>${t.reviewed_by ?? ""}</td>
-              <td>${t.deviation ?? ""}</td>
-              <td style="display:flex; justify-content:center; align-items:center;">
-                <button
-                 class="view-deviation-form"
-                 data-sample-name="${sampleName}"
-                 data-test-name="${t.test_name}"
-                 >
-                  Form
-                </button>
-              </td>
-              <td>${t.approved_by ?? ""}</td>
-              <td>${t.released_by ?? ""}</td>
-          `;
-            tbody.appendChild(row);
-        });
-
-    } catch (err) {
-        console.error("API error", err);
-    }
-}
-
-async function deviationFormHistorical (openDeviationFormBtn) {
-
-    const sampleName = openDeviationFormBtn.dataset.sampleName;
-    const testName = openDeviationFormBtn.dataset.testName;
-
-    const panel = document.getElementById("sample-historical-deviations-component-details");
+    const panel = document.getElementById("deviation-form-display");
     if (!panel) return;   // prevents navigation crash
     panel.classList.remove("hidden");
 
@@ -201,7 +126,7 @@ async function deviationFormHistorical (openDeviationFormBtn) {
         // server to return no matching record even though one exists.
         // Wrap both values in encodeURIComponent so the URL is always valid.
         const res = await fetch(
-            `http://localhost:8000/deviation_form/review?sample_name=${encodeURIComponent(sampleName)}&test_name=${encodeURIComponent(testName)}`,
+            `http://localhost:8000/deviation_form/?sample_name=${encodeURIComponent(sampleName)}&test_name=${encodeURIComponent(testName)}`,
             {
                 method: "GET",
                 headers: { "Content-Type": "application/json" }
@@ -221,7 +146,7 @@ async function deviationFormHistorical (openDeviationFormBtn) {
         // The backend returns a JSON null when no record exists, so the guard
         // only needs to catch that specific case — not all falsy field values.
         if (deviation === null) {
-            const deviationDocument = document.querySelector("#sample-deviations-component-details")
+            const deviationDocument = document.querySelector("#deviation-form-display")
             deviationDocument.innerHTML = `
                 <h1 style="text-align: center; font-size: 32px;">
                     No deviation form available
@@ -229,13 +154,7 @@ async function deviationFormHistorical (openDeviationFormBtn) {
             `;
             return;
         } else {
-            await loadDeviationForm("#sample-historical-deviations-component-details");
-
-            const submitBtn = document.getElementById("deviation-form-submit-button");
-            if (submitBtn) submitBtn.style.display = "none";
-
-            const saveBtn = document.getElementById("deviation-form-save-button");
-            if (saveBtn) saveBtn.style.display = "none"
+            await loadDeviationForm("#deviation-form-display");
         }
 
         await Promise.all([
@@ -336,6 +255,76 @@ async function deviationFormHistorical (openDeviationFormBtn) {
     }
 }
 
-async function closeDeviationForm () {
-    document.getElementById("sample-historical-deviations-component-details").classList.add("hidden");
+async function deviationDocumentProcess(deviationDocumentSubmitBtn, deviationDocumentSaveBtn, e) {
+
+    const submitBtn = deviationDocumentSubmitBtn;
+    const saveBtn = deviationDocumentSaveBtn;
+
+    console.log(submitBtn, saveBtn)
+
+    if (submitBtn || saveBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const formStatus = saveBtn ? "draft" : "submitted";
+        const sampleValue = document.getElementById("sample_name").value;
+        const testValue = document.getElementById("test_name").value;
+        const deviationCode = document.getElementById("PR-number").value;
+
+        const form = document.getElementById("deviation-form");
+        const data = Object.fromEntries(new FormData(form).entries());
+
+        const submittedBy = localStorage.getItem("username");
+        const role = localStorage.getItem("role");
+
+        const toBool = (v) => {
+          if (!v) return false;
+          v = v.toString().toLowerCase();
+          return v === "yes" || v === "true" || v === "1";
+        };
+
+        const response = await fetch("http://localhost:8000/deviation/modification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...data,
+            deviation_code: deviationCode,
+            form_status: formStatus,
+            submitted_by: submittedBy,
+            submitted_by_role: role,
+            sample_name: sampleValue,
+            test_name: testValue,
+
+            was_testing_repeated: toBool(data["was_testing_repeated"]),
+            deviation_batch_released: toBool(data["deviation_batch_released"]),
+            capa_required: toBool(data["capa_required"]),
+            effectiveness_check_required: toBool(data["effectiveness_check_required"]),
+
+            deviation_quantity_impacted: data["deviation_quantity_impacted"] === ""
+              ? null
+              : Number(data["deviation_quantity_impacted"]),
+
+            investigation_start_date: data["investigation_start_date"] || null,
+            investigation_end_date: data["investigation_end_date"] || null,
+            target_completion_date: data["target_completion_date"] || null,
+          }),
+        });
+
+        if (response.ok) {
+          alert(`submission of ${formStatus} deviation form was made`);
+        } else {
+          let message = "An error occurred.";
+          try {
+            const errorData = await response.json();
+            if (Array.isArray(errorData.detail)) {
+              message = errorData.detail
+                .map(err => `${err.loc.join(" → ")}: ${err.msg}`)
+                .join("\n");
+            } else {
+              message = errorData.detail || message;
+            }
+          } catch { }
+          alert(message);
+        }
+    }
 }

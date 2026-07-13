@@ -78,8 +78,6 @@ function attachDelegatedHandlers() {
 function delegatedClick(e) {
     const btn = e.target.closest('button.view-released-tests');
     if (!btn) return;
-    const sampleName = btn.dataset.sampleName;
-    if (!sampleName) return;
 }
 
 // Ensure the table exists, then initialize

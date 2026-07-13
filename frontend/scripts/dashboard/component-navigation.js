@@ -145,4 +145,11 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     });
 
+    document.getElementById("deviation-document").addEventListener("click", () => {
+        loadComponent(
+            "/navigation/components/deviation_form/deviation.html",
+            "/navigation/components/deviation_form/deviation.js"
+        );
+    });
+
 });

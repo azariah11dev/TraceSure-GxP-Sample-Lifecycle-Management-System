@@ -158,6 +158,14 @@ Deviation forms and corrective actions may be initiated throughout the testing l
 
 ---
 
+🎥 Demo
+A complete walkthrough of the project is available here.
+
+📺 YouTube
+https://youtu.be/WmHbdRCe2-E
+
+---
+
 # 📚 Project Documentation
 
 Each application contains its own detailed documentation.

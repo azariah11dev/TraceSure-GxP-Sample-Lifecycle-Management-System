@@ -241,10 +241,6 @@ async function closeApprovalDocument() {
 
 async function deviationFormApproval (sampleName, testName) {
 
-    const panel = document.getElementById("sample-deviations-component-details");
-    if (!panel) return;   // prevents navigation crash
-    panel.classList.remove("hidden");
-
     try {
         // sampleName and testName were interpolated raw into the
         // query string. Any value containing spaces, ampersands, slashes, or
@@ -271,15 +267,14 @@ async function deviationFormApproval (sampleName, testName) {
         // the autofill whenever any field inside the object was falsy.
         // The backend returns a JSON null when no record exists, so the guard
         // only needs to catch that specific case — not all falsy field values.
-        if (deviation === null) {
-            const deviationDocument = document.querySelector("#sample-deviations-component-details")
-            deviationDocument.innerHTML = `
-                <h1 style="text-align: center; font-size: 32px;">
-                    No deviation form available
-                </h1>
-            `;
+        if (!deviation || Object.keys(deviation).length === 0) {
+            alert(`No deviation form found for Test: ${testName} under Sample: ${sampleName}.`);
             return;
         } else {
+            const panel = document.getElementById("sample-deviations-component-details");
+            if (!panel) return;   // prevents navigation crash
+            panel.classList.remove("hidden");
+
             await loadDeviationForm("#sample-deviations-component-details");
 
             const submitBtn = document.getElementById("deviation-form-submit-button");
@@ -396,7 +391,7 @@ async function submitApprovalForm(btn) {
     const sampleName = btn.dataset.sampleName;
 
     const statusSelect = btn.closest("tr").querySelector(".approve-test");
-    const approvedStatus = statusSelect.value === "True";
+    const approvedStatus = statusSelect.value;
 
     if (!statusSelect.value) {
         alert("Please select an approval status.");

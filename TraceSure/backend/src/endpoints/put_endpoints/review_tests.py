@@ -92,27 +92,27 @@ async def management_approval_status(
         form_result = await session.execute(deviation_query)
         approval_deviation_form = form_result.scalars().first()
 
-        if not approval_deviation_form:
-            raise HTTPException(status_code=404, detail="Deviation form not found for this test")
+        if approval_deviation_form:
+            # Manager approves
+            if data.approval_status is True:
+                approval_deviation_form.form_approver_name = data.approved_by
+                approval_deviation_form.form_approver_role = data.approver_role
+                approval_deviation_form.approval_status = True
 
-        # Manager rejects test → update deviation form
-        if data.approval_status is False:
-            approval_deviation_form.form_status = "draft"
-            approval_deviation_form.approval_status = False
+            # Manager rejects
+            else:
+                approval_deviation_form.form_status = "draft"
+                approval_deviation_form.approval_status = False
 
         # Update manager approval fields
         approval_sample.manager_name = data.approved_by
         approval_sample.manager_approval = data.approval_status
 
-        # Update deviation form approval fields
-        approval_deviation_form.form_approver_name = data.approver_name
-        approval_deviation_form.form_approver_role = data.approver_role
-        approval_deviation_form.approval_status = data.approval_status
-
         # Commit once
         await session.commit()
         await session.refresh(approval_sample)
-        await session.refresh(approval_deviation_form)
+        if approval_deviation_form:
+            await session.refresh(approval_deviation_form)
 
         return {
             "sample_name": approval_sample.sample_name,
@@ -157,6 +157,9 @@ async def qa_approval(
         # Prevent QA from approving their own test
         if release_sample.manager_name == data.released_by:
             raise HTTPException(status_code=400, detail="Approver cannot release their own test")
+
+        if data.releaser_role != "QA":
+            raise HTTPException(status_code=400, detail="User must be QA to release test")
 
         # QA rejection logic (optional)
         if data.release_status is False:

@@ -215,7 +215,8 @@ async def get_management_approval(session: AsyncSession = Depends(get_async_sess
                     "approved_by": row.manager_name,
                     "total_tests": 0,
                     "creation_date": row.created_date,
-                    "completed_date": row.test_completed_date
+                    "completed_date": row.test_completed_date,
+                    "deviations": 0
                 }
 
             samples[name]["total_tests"] += 1
@@ -230,6 +231,10 @@ async def get_management_approval(session: AsyncSession = Depends(get_async_sess
                 if samples[name]["completed_date"] is None or row.test_completed_date > samples[name]["completed_date"]:
                     samples[name]["completed_date"] = row.test_completed_date
 
+            # count deviations
+            if row.status == "out_of_specification":
+                samples[name]["deviations"] += 1
+
         sample_output = []
         for name, s in samples.items():
             total_days = None
@@ -239,7 +244,7 @@ async def get_management_approval(session: AsyncSession = Depends(get_async_sess
             sample_output.append({
                 "sample_name": name,
                 "status": s["status"],
-                "performed_by": s["performed_by"],
+                "approved_by": s["approved_by"],
                 "total_tests": s["total_tests"],
                 "creation_date": s["creation_date"].strftime("%d-%B-%Y") if s["creation_date"] else None,
                 "completed_date": s["completed_date"].strftime("%d-%B-%Y") if s["completed_date"] else None,
@@ -253,13 +258,13 @@ async def get_management_approval(session: AsyncSession = Depends(get_async_sess
         test_output = [
             {
                 "test_name": r.test_name,
-                "performed_by": r.manager_name,
+                "performed_by": r.performed_by,
                 "test_result": r.result,
                 "upper_spec": r.spec_range_upper_limit,
                 "lower_spec": r.spec_range_lower_limit,
                 "unit": r.unit,
                 "status": r.status,
-                "approval_status": r.manager_approval,
+                "approval_status": "approved" if r.manager_approval else "rejected",
             }
             for r in rows
         ]
@@ -303,16 +308,23 @@ async def historical_tests(session: AsyncSession = Depends(get_async_session)):
                     "sample_name": name,
                     "total_tests": 0,
                     "creation_date": r.created_date,
-                    "completed_date": r.test_completed_date
+                    "completed_date": r.test_completed_date,
+                    "deviations": 0
                 }
 
             samples[name]["total_tests"] += 1
 
+            # earliest creation date
             if r.created_date and (samples[name]["creation_date"] is None or r.created_date < samples[name]["creation_date"]):
                 samples[name]["creation_date"] = r.created_date
 
+            # latest completed date
             if r.test_completed_date and (samples[name]["completed_date"] is None or r.test_completed_date > samples[name]["completed_date"]):
                 samples[name]["completed_date"] = r.test_completed_date
+
+            # count deviations
+            if r.status == "out_of_specification":
+                samples[name]["deviations"] += 1
 
         sample_output = []
         for name, s in samples.items():
@@ -326,6 +338,7 @@ async def historical_tests(session: AsyncSession = Depends(get_async_session)):
                 "creation_date": s["creation_date"].strftime("%d-%B-%Y") if s["creation_date"] else None,
                 "completed_date": s["completed_date"].strftime("%d-%B-%Y") if s["completed_date"] else None,
                 "total_days": total_days,
+                "deviations": s["deviations"]
             })
 
         test_output = [

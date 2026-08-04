@@ -122,14 +122,14 @@ async function sampleReleaseInitialized() {
 
 async function sampleReleasedTest(viewSampleReleaseTestBtn) {
 
-    const sampleName = viewSampleReleaseTest.dataset.sampleName;
-    const testName = viewSampleReleaseTest.dataset.testName;
+    const sampleName = viewSampleReleaseTestBtn.dataset.sampleName;
+    const testName = viewSampleReleaseTestBtn.dataset.testName;
 
     const panel = document.getElementById("sample-release-component-test-details");
     if (!panel) return;
 
     const title = document.getElementById("sample-release-component-test-details-title");
-    const tbody = document.querySelector("#sample-review tbody");
+    const tbody = document.querySelector("#sample-release tbody");
     if (!title || !tbody) return;
 
     // Show panel
@@ -141,7 +141,7 @@ async function sampleReleasedTest(viewSampleReleaseTestBtn) {
 
     try {
         const res = await fetch(
-            `http://localhost:8000/review_test/qa_approval`, {
+            `http://localhost:8000/display_tests/test_for_release`, {
             method: "GET",
             headers: { "Content-Type": "application/json" }
         });
@@ -156,7 +156,7 @@ async function sampleReleasedTest(viewSampleReleaseTestBtn) {
 
             row.innerHTML = `
               <td>${t.test_name}</td>
-              <td>${t.approved_by ?? ""}</td>
+              <td>${t.performed_by ?? ""}</td>
               <td>${t.test_result}</td>
               <td>${t.upper_spec ?? ""}</td>
               <td>${t.lower_spec ?? ""}</td>
@@ -173,7 +173,7 @@ async function sampleReleasedTest(viewSampleReleaseTestBtn) {
               <td style="display:flex; justify-content:center; align-items:center;">
                 <button 
                 class="submit-released-test" 
-                data-test-name="${testName}" 
+                data-test-name="${t.test_name}" 
                 data-sample-name="${sampleName}"
                 >
                   Submit
@@ -198,7 +198,7 @@ async function releseTestDetails (releseTestDetailsBtn) {
     const testName = releseTestDetailsBtn.dataset.testName;
     const sampleName = releseTestDetailsBtn.dataset.sampleName;
 
-    const statusSelect = btn.closest("tr").querySelector(".release-test");
+    const statusSelect = releseTestDetailsBtn.closest("tr").querySelector(".release-test");
     const approvedStatus = statusSelect.value === "True";
 
     try {
@@ -211,6 +211,7 @@ async function releseTestDetails (releseTestDetailsBtn) {
                     sample_name: sampleName,
                     test_name: testName,
                     released_by: localStorage.getItem("username"),
+                    releaser_role: localStorage.getItem("role"),
                     release_status: approvedStatus
                 })
 
@@ -220,7 +221,7 @@ async function releseTestDetails (releseTestDetailsBtn) {
         if (response.ok) {
             alert("Test Released!");
             //remove row or reload panel
-            btn.closest("tr").remove();
+            releseTestDetailsBtn.closest("tr").remove();
         } else {
             const errText = await response.text();
             console.error("Server error:", errText);

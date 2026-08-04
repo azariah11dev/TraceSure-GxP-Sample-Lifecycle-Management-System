@@ -136,7 +136,7 @@ waitForElement("#sample-creation-component-create-samples").then(createBtn => {
             if (response.ok) {
                 alert("Additional tests added successfully!");
             } else {
-                const errText = await res.text();
+                const errText = await response.text();
                 console.error("Server error:", errText);
                 alert(errText);
             }

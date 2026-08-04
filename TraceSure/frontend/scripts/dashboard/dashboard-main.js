@@ -82,6 +82,8 @@
           "/navigation/components/dashboard/dashboard.html",
           "/scripts/dashboard/dashboard-main.js"
         );
+        // Full browser refresh:
+        window.location.reload();
       });
     }
   }
@@ -133,11 +135,11 @@
     statusChartInstance = new Chart(ctx, {
       type: "bar",
       data: {
-        labels: ["Pass", "Out of Spec", "Out of Trend"],
+        labels: ["Out of Trend", "Out of Spec", "Pass"],
         datasets: [{
           label: "Count",
           data: counts,
-          backgroundColor: ["#22c55e", "#ef4444", "#f97316"]
+          backgroundColor: ["#f97316", "#ef4444", "#22c55e"]
         }]
       },
       options: {

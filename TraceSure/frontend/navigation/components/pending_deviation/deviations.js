@@ -97,9 +97,10 @@ waitForElement('#pending-deviations-table tbody').then(() => {
 
 // ===========================View Deviation Form Modal Logic===========================
 
-if (document.querySelector(".pending-deviations-component")) {
+if (document.querySelector(".pending-deviations-component") && !window.__pendingDeviationInitialized) {
+    window.__pendingDeviationInitialized = true;
     LoadDeviationDetails();
-}
+} 
 
 async function LoadDeviationDetails() {
 

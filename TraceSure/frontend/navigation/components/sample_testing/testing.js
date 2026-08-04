@@ -88,13 +88,13 @@ if (document.querySelector(".sample-testing-component")) {
 
 async function initializeSampleTesting() {
 
-  let currentSampleName = null;
+  let sampleName = null;
 
   document.addEventListener("click", async (e) => {
     const btn = e.target.closest('button.view-tests');
     if (!btn) return;
 
-    const sampleName = btn.dataset.sample;
+    sampleName = btn.dataset.sample;
 
     await loadTestsForSample(sampleName);
   });
@@ -222,7 +222,7 @@ async function initializeSampleTesting() {
           test_name: e.target.dataset.test,
           performed_by: localStorage.getItem("username"),
           result_value: updated,
-          sample_name: currentSampleName,
+          sample_name: sampleName,
           explanation: explanation
         })
       });
@@ -231,7 +231,7 @@ async function initializeSampleTesting() {
         alert("Result submitted!");
         input.dataset.original = updated;
         // Automatically refresh the table so status updates
-        await loadTestsForSample(currentSampleName);
+        await loadTestsForSample(sampleName);
 
       } else {
         const errText = await response.text();

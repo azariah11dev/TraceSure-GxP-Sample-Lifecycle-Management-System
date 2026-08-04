@@ -1,4 +1,4 @@
-// run when the component HTML is present
+// run when the component HTML is present 
 async function loadHistoricalSamples() {
     try {
         const res = await fetch(
@@ -33,12 +33,13 @@ function renderHistoricalSamples(samples = []) {
     samples.forEach(s => {
         const row = document.createElement('tr');
         row.innerHTML = `
-      <td>${escapeHtml(s.sample_name)}</td>
-      <td>${Number(s.total_tests) || 0}</td>
-      <td>${escapeHtml(s.creation_date || '')}</td>
-      <td>${escapeHtml(s.completed_date || '')}</td>
-      <td>${escapeHtml(s.total_days || '')}</td>
-      <td style="display:flex; justify-content:center; align-items:center;">
+        <td>${escapeHtml(s.sample_name)}</td>
+        <td>${Number(s.total_tests) || 0}</td>
+        <td>${escapeHtml(s.creation_date || '')}</td>
+        <td>${escapeHtml(s.completed_date || '')}</td>
+        <td>${escapeHtml(s.total_days || '')}</td>
+        <td>${escapeHtml(s.deviations || 0)}</td>
+        <td style="display:flex; justify-content:center; align-items:center;">
         <button
         data-sample-name="${escapeHtml(s.sample_name)}"
          class="view-completed-tests"
@@ -190,10 +191,6 @@ async function deviationFormHistorical (openDeviationFormBtn) {
     const sampleName = openDeviationFormBtn.dataset.sampleName;
     const testName = openDeviationFormBtn.dataset.testName;
 
-    const panel = document.getElementById("sample-historical-deviations-component-details");
-    if (!panel) return;   // prevents navigation crash
-    panel.classList.remove("hidden");
-
     try {
         // sampleName and testName were interpolated raw into the
         // query string. Any value containing spaces, ampersands, slashes, or
@@ -220,22 +217,21 @@ async function deviationFormHistorical (openDeviationFormBtn) {
         // the autofill whenever any field inside the object was falsy.
         // The backend returns a JSON null when no record exists, so the guard
         // only needs to catch that specific case — not all falsy field values.
-        if (deviation === null) {
-            const deviationDocument = document.querySelector("#sample-deviations-component-details")
-            deviationDocument.innerHTML = `
-                <h1 style="text-align: center; font-size: 32px;">
-                    No deviation form available
-                </h1>
-            `;
+        if (!deviation || Object.keys(deviation).length === 0) {
+            alert(`No deviation form found for Test: ${testName} under Sample: ${sampleName}.`);
             return;
         } else {
+            const panel = document.getElementById("sample-historical-deviations-component-details");
+            if (!panel) return;   // prevents navigation crash
+            panel.classList.remove("hidden");
+            
             await loadDeviationForm("#sample-historical-deviations-component-details");
 
             const submitBtn = document.getElementById("deviation-form-submit-button");
             if (submitBtn) submitBtn.style.display = "none";
 
             const saveBtn = document.getElementById("deviation-form-save-button");
-            if (saveBtn) saveBtn.style.display = "none"
+            if (saveBtn) saveBtn.style.display = "none";
         }
 
         await Promise.all([

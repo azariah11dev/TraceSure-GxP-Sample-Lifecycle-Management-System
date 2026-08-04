@@ -108,7 +108,8 @@ waitForElement('#samples-deviation-table tbody').then(() => {
 
 // ==========================View Deviation Details Panel Logic==========================
 
-if (document.querySelector(".sample-deviation-component")) {
+if (document.querySelector(".sample-deviation-component") && !window.__deviationFormInitialized) {
+    window.__deviationFormInitialized = true;
     sampleDeviationInitialized();
     submitDeviationInitialized();
     retestInitialized();
@@ -294,10 +295,14 @@ async function sampleDeviationInitialized() {
 
       const submitBtn = e.target.closest("#deviation-form-submit-button");
       const saveBtn = e.target.closest("#deviation-form-save-button");
+      let isSubmitting = false;
 
       if (submitBtn || saveBtn) {
         e.preventDefault();
         e.stopPropagation();
+
+        if (isSubmitting) return;
+        isSubmitting = true;
 
         const formStatus = saveBtn ? "draft" : "submitted";
         const sampleValue = document.getElementById("sample_name").value;

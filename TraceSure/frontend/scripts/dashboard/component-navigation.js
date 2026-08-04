@@ -80,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "/navigation/components/dashboard/dashboard.html",
             "/scripts/dashboard/dashboard-main.js"
         );
+        window.location.reload();
     });
 
     document.getElementById("create").addEventListener("click", () => {

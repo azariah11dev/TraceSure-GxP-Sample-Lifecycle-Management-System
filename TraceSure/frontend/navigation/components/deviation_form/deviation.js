@@ -89,12 +89,11 @@ if (!document.body.dataset.deviationDocumentListenerInit) {
             deviationDocumentDisplay(deviationDocumentDisplayBtn);
             return;
         }
-        // submit deviation form
-        const deviationDocumentSubmitBtn = e.target.closest("#deviation-form-submit-button");
+
         // save deviation form
         const deviationDocumentSaveBtn = e.target.closest("#deviation-form-save-button");
-        if (deviationDocumentSubmitBtn || deviationDocumentSaveBtn) {
-            deviationDocumentProcess(deviationDocumentSubmitBtn, deviationDocumentSaveBtn, e);
+        if (deviationDocumentSaveBtn) {
+            deviationDocumentProcess(deviationDocumentSaveBtn, e);
             return;
         }
         // close deviation form
@@ -156,6 +155,9 @@ async function deviationDocumentDisplay (deviationDocumentDisplayBtn) {
         } else {
             await loadDeviationForm("#deviation-form-display");
         }
+
+        const saveBtn = document.getElementById("deviation-form-save-button");
+        if (saveBtn) saveBtn.style.display = "none";
 
         await Promise.all([
             waitForElement("#PR-number"),
@@ -255,18 +257,17 @@ async function deviationDocumentDisplay (deviationDocumentDisplayBtn) {
     }
 }
 
-async function deviationDocumentProcess(deviationDocumentSubmitBtn, deviationDocumentSaveBtn, e) {
+async function deviationDocumentProcess(deviationDocumentSaveBtn, e) {
 
-    const submitBtn = deviationDocumentSubmitBtn;
     const saveBtn = deviationDocumentSaveBtn;
 
-    console.log(submitBtn, saveBtn)
+    console.log(saveBtn)
 
-    if (submitBtn || saveBtn) {
+    if (saveBtn) {
         e.preventDefault();
         e.stopPropagation();
 
-        const formStatus = saveBtn ? "draft" : "submitted";
+        const formStatus = "draft";
         const sampleValue = document.getElementById("sample_name").value;
         const testValue = document.getElementById("test_name").value;
         const deviationCode = document.getElementById("PR-number").value;

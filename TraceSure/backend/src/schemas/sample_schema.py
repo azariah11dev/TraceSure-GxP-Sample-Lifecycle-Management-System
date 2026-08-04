@@ -114,6 +114,7 @@ class ReleaseTestResults(BaseModel):
     sample_name: str
     test_name: str
     released_by: str
+    releaser_role: str
     release_status: bool
 
 class DeviationFormModification(BaseModel):

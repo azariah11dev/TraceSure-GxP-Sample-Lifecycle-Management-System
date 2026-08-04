@@ -50,3 +50,20 @@
 .hidden { 
     display: none !important;
 }
+
+.view-released-tests,
+.submit-released-test,
+#close-test-release-details {
+    padding: 6px 12px;
+    background-color: #00004d;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+}
+.view-released-tests:hover,
+.submit-released-test:hover,
+#close-test-release-details:hover {
+    background-color: #000066;
+    cursor: pointer;
+    transform: scale(1.05);
+}
